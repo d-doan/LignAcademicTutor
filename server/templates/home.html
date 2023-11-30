@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Home Page</title>
+</head>
+<body>
+    <h1>Welcome to the Home Page</h1>
+    <a href="{{ url_for('auth.register') }}"><button>Register</button></a>
+    <a href="{{ url_for('auth.login') }}"><button>Login</button></a>
+    <a href="{{ url_for('admin.generate_code') }}"><button>Generate Code (Admin)</button></a>
+</body>
+</html>
