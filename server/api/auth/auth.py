@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, redirect, request, url_for, flash
-from server.models.models import User, db
+from server.models.models import RegistrationCode, User, db
 from flask_login import login_user
 
 auth = Blueprint('auth', __name__)
@@ -10,14 +10,24 @@ auth = Blueprint('auth', __name__)
 @auth.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
+
+        registration_code = request.form.get('registration_code')
+        code = RegistrationCode.query.filter_by(code=registration_code, is_used=False).first()
+        if not code:
+            flash('Invalid or used registration code.')
+            return redirect(url_for('auth.register'))
+
         # Extract data from form
         username = request.form.get('username')
-        email = request.form.get('email')
         password = request.form.get('password')
 
         # Create new user object
-        user = User(username=username, email=email)
+        user = User(username=username)
         user.password = password  # This will hash the password
+        user.role = "instructor"
+
+        code.is_used = True
+
         db.session.add(user)
         db.session.commit()
 
@@ -30,10 +40,10 @@ def register():
 @auth.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        email = request.form.get('email')
+        username = request.form.get('username')
         password = request.form.get('password')
 
-        user = User.query.filter_by(email=email).first()
+        user = User.query.filter_by(username=username).first()
         if user is not None and user.verify_password(password):
             login_user(user)
             return redirect(url_for('auth.login_success'))  # Redirect to the main page of your app

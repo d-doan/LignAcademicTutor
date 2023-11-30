@@ -1,9 +1,11 @@
 import os
+import click
 from flask import Flask, jsonify
 from flask_login import LoginManager
+from flask.cli import with_appcontext
 from .api.auth.auth import auth
+from .api.admin.admin import admin
 from .extensions import db
-from .models.models import User
 
 
 def create_app():
@@ -38,10 +40,28 @@ def create_app():
         return jsonify(message="Flask is connected!")
 
     # Register routes through blueprints
-
     app.register_blueprint(auth, url_prefix='/auth')
+    app.register_blueprint(admin, url_prefix="/admin")
 
     with app.app_context():
         db.create_all()  # Create tables
+
+    # SETUP FOR ADMIN ACCNT
+    @app.cli.command('create-admin')
+    @click.argument('username')
+    @click.argument('password')
+    @with_appcontext
+    def create_admin(username, password):
+        """Creates an admin user."""
+        if User.query.filter_by(username=username).first():
+            click.echo('Admin user already exists.')
+            return
+
+        admin_user = User(username=username, role='admin')
+        admin_user.password = password
+        db.session.add(admin_user)
+        db.session.commit()
+        click.echo('Admin user created successfully.')
+
 
     return app
