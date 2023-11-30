@@ -15,5 +15,7 @@
             <li>{{ code.code }} - {% if code.is_used %}Used{% else %}Unused{% endif %}</li>
         {% endfor %}
     </ul>
+
+    {% include '_navigation.html' %}
 </body>
 </html>

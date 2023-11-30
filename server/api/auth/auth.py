@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, redirect, request, url_for, flash
 from server.models.models import RegistrationCode, User, db
-from flask_login import login_user
+from flask_login import current_user, login_user, logout_user
 
 auth = Blueprint('auth', __name__)
 
@@ -39,6 +39,9 @@ def register():
 # user login
 @auth.route('/login', methods=['GET', 'POST'])
 def login():
+    if current_user.is_authenticated:
+        return render_template('already_logged_in.html')
+
     if request.method == 'POST':
         username = request.form.get('username')
         password = request.form.get('password')
@@ -56,3 +59,8 @@ def login():
 @auth.route('/login-success')
 def login_success():
     return render_template('login-success.html')
+
+@auth.route('/logout', methods=['POST'])
+def logout():
+    logout_user()
+    return redirect(url_for('auth.login'))  # Redirect to the login page after logout

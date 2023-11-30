@@ -5,6 +5,7 @@ from flask_login import LoginManager
 from flask.cli import with_appcontext
 from .api.auth.auth import auth
 from .api.admin.admin import admin
+from .main.main import main
 from .extensions import db
 
 
@@ -31,17 +32,14 @@ def create_app():
 
     # Define routes below
 
-    @app.route('/')
-    def home():
-        return 'Welcome to the home page'
-
     @app.route('/test')
     def test_route():
         return jsonify(message="Flask is connected!")
 
     # Register routes through blueprints
-    app.register_blueprint(auth, url_prefix='/auth')
+    app.register_blueprint(auth, url_prefix="/auth")
     app.register_blueprint(admin, url_prefix="/admin")
+    app.register_blueprint(main, url_prefix="/")
 
     with app.app_context():
         db.create_all()  # Create tables
