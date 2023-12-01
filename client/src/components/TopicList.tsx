@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AppBar, Toolbar, Typography, Box, Button, List, ListItem, Collapse } from '@mui/material';
 
-const ButtonReroute = () => {
+const TopicList = () => {
     const navigate = useNavigate();
 
     const [open, setOpen] = useState<Record<string, boolean>>({});
@@ -64,4 +64,4 @@ const ButtonReroute = () => {
     );
 };
 
-export default ButtonReroute;
+export default TopicList;

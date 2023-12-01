@@ -2,12 +2,34 @@ import React from 'react';
 import { AppBar, Toolbar, Button, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 
-interface TopBarProps {
-  onLogin: () => void; // Assuming you have a login function to call
+interface User {
+    username: string;
 }
 
-const TopBar: React.FC<TopBarProps> = ({ onLogin }) => {
+interface TopBarProps {
+    user: User | null;  // User object or null if not logged in
+}
+
+const TopBar: React.FC<TopBarProps> = ({ user }) => {
     const navigate = useNavigate();
+
+    const handleSignOut = async () => {
+        try {
+            const response = await fetch('/auth/logout', {
+                method: 'POST',
+                // Include credentials if your API requires it
+            });
+    
+            if (response.ok) {
+                // Update the global state/user context to reflect that the user is logged out
+            } else {
+                // Handle error
+            }
+        } catch (error) {
+            console.error('Logout failed:', error);
+            // Handle error
+        }
+    }
 
     return (
         <AppBar position="static" color="default" elevation={0}>
@@ -15,9 +37,22 @@ const TopBar: React.FC<TopBarProps> = ({ onLogin }) => {
             {/* Placeholder div to center the title while having buttons on the side */}
             <div style={{ width: 48 }}></div>
             <Typography margin="20px" variant="h4" component="h1" sx={{ flexGrow: 1, textAlign: 'center' }}>
-            LIGN 167 AI Assisted Question Bank
+            LIGN 101 AI Assisted Question Bank
             </Typography>
-            <Button color="inherit" onClick={() => navigate('/login')}>Log In / Sign Up</Button>
+            {/* <Button color="inherit" onClick={() => navigate('/login')}>Log In / Sign Up</Button> */}
+            {user ? (
+                <div>
+                    <Typography variant="subtitle1" component="span">
+                        {user.username}
+                    </Typography>
+                    <Button color="inherit" onClick={handleSignOut}>Sign Out</Button>
+                </div>
+            ) : (
+                <>
+                    <Button color="inherit" onClick={() => navigate('/login')}>Sign In / Create Account</Button>
+                    <Button color="inherit" onClick={handleSignOut}>Sign Out</Button>
+                </>
+            )}
         </Toolbar>
         </AppBar>
     );

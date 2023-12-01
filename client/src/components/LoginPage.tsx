@@ -16,14 +16,36 @@ const LoginPage: React.FC = () => {
         setPassword(event.target.value);
     };
 
-    const handleLogin = () => {
-        // Implement your login logic here
+    const handleLogin = async () => {
+        // Login logic
         if (!username || !password) {
             alert('Please enter both email and password.');
             return;
         }
 
         // Send request to db to get login
+        try {
+            const response = await fetch('/auth/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ username, password }),
+                credentials: 'include',
+            });
+    
+            if (response.ok) {
+                const data = await response.json();
+                alert(data.message);  // Or handle user redirection, etc.
+                navigate('/'); // Route to menu or dashboard
+            } else {
+                const errorData = await response.json();
+                alert(errorData.error);  // Display error message from server
+            }
+        } catch (error) {
+            console.error('Error during login:', error);
+            alert('Error during login. Please try again.');
+        }
 
         navigate('/'); // Route to menu
     };

@@ -21,16 +21,39 @@ const CreateAccountPage: React.FC = () => {
         setCode(event.target.value);
     }
 
-    const handleCreateAccount = () => {
-        // Implement your account creation logic here
+    const handleCreateAccount = async () => {
+        // Create account logic
         if (!username || !password || !code) {
             alert('Please email, password, and authentication code.');
             return;
         }
 
         // Send request to db to create login
+        try {
+            const response = await fetch('/auth/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ username, password, code }),
+                credentials: 'include',
+            });
 
-        navigate('/'); // Route to menu
+            if (response.ok) {
+                const data = await response.json();
+                alert(data.message);  // Or handle user redirection, etc.
+                navigate('/'); // Route to menu or login page
+            } else {
+                const errorData = await response.json();
+                alert(errorData.error);  // Display error message from server
+            }
+        } catch (error) {
+            console.error('Error creating account:', error);
+            alert('Error creating account. Please try again.');
+        }
+
+        // Route to menu
+        navigate('/');
     };
 
     const handleLogin = () => {
