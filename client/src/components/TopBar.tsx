@@ -17,18 +17,24 @@ const TopBar: React.FC<TopBarProps> = ({ user }) => {
         try {
             const response = await fetch('/auth/logout', {
                 method: 'POST',
-                // Include credentials if your API requires it
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'include', // Include cookies for session handling
             });
     
             if (response.ok) {
                 // Update the global state/user context to reflect that the user is logged out
             } else {
                 // Handle error
+                const errorData = await response.json();
+                console.error('Logout error:', errorData.error);
             }
         } catch (error) {
             console.error('Logout failed:', error);
             // Handle error
         }
+        window.location.reload(); // refresh page
     }
 
     return (
@@ -50,7 +56,8 @@ const TopBar: React.FC<TopBarProps> = ({ user }) => {
             ) : (
                 <>
                     <Button color="inherit" onClick={() => navigate('/login')}>Sign In / Create Account</Button>
-                    <Button color="inherit" onClick={handleSignOut}>Sign Out</Button>
+                    {/* Logout for debugging */}
+                    {/* <Button color="inherit" onClick={handleSignOut}>Sign Out</Button> */}
                 </>
             )}
         </Toolbar>

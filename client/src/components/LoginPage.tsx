@@ -48,6 +48,11 @@ const LoginPage: React.FC = () => {
         }
 
         navigate('/'); // Route to menu
+
+        // Refresh the page after a short delay
+        setTimeout(() => {
+            window.location.reload();
+        }, 100); // The delay ensures that the navigation is complete before the refresh
     };
 
     const handleCreateAccount = () => {

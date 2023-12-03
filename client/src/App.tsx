@@ -31,7 +31,7 @@ function App() {
         // Get current user if logged in
         const fetchCurrentUser = async () => {
             try {
-                const response = await fetch('/api/current_user', {
+                const response = await fetch('/auth/current-user', {
                     method: 'GET',
                     credentials: 'include',  // if your backend relies on cookies
                     // headers: { Authorization: `Bearer ${token}` }, // if using token-based auth

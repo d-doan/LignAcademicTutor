@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, redirect, request, url_for, flash, jsonify
+from flask import Blueprint, render_template, redirect, request, url_for, flash, jsonify, session
 from server.models.models import RegistrationCode, User, db
 from flask_login import current_user, login_user, logout_user
 
@@ -78,12 +78,20 @@ def login():
             username = request.form.get('username')
             password = request.form.get('password')
 
+        # data = request.get_json()
+        # username = data.get('username')
+        # password = data.get('password')
+
         user = User.query.filter_by(username=username).first()
 
         # Check valid login
         if user is not None and user.verify_password(password):
             login_user(user)
-            message = 'Login successful.'
+            print("Logged in as: ", current_user.username)
+            print("Authenticated? ", current_user.is_authenticated)
+            print("Session: ", session)
+            message = 'Login successful. Returning now.'
+            # return jsonify({'message': message}), 200
             if request.is_json:
                 return jsonify({'message': message}), 200
             else:
@@ -91,13 +99,16 @@ def login():
 
         # Invalid login
         message = 'Invalid username or password.'
+        # return jsonify({'error': message}), 401
         if request.is_json:
             return jsonify({'error': message}), 401
         else:
             flash(message)
             return redirect(url_for('auth.login'))
 
+    print("We didn't go into the post if statement...")
     return render_template('login.html')
+    # return jsonify({'message': 'idk how we got here'}), 401
 
 # Render the login success page
 @auth.route('/login-success')
@@ -114,8 +125,11 @@ def logout():
         return redirect(url_for('auth.login'))  # Redirect to the login page after logout
 
 # Get current user data
-@auth.route('/current-user')
+@auth.route('/current-user', methods=['GET'])
 def get_current_user():
+    print("Getting current user username: ", current_user)
+    print("Session: ", session)
     if current_user.is_authenticated:
         return jsonify(username=current_user.username)
+    print("Not authenticated?")
     return jsonify(error='Not logged in'), 401
