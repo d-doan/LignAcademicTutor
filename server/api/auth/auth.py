@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, redirect, request, url_for, flash
+from flask import Blueprint, render_template, redirect, request, url_for, flash, jsonify, session
 from server.models.models import RegistrationCode, User, db
 from flask_login import current_user, login_user, logout_user
 
@@ -11,19 +11,40 @@ auth = Blueprint('auth', __name__)
 def register():
     if request.method == 'POST':
 
-        registration_code = request.form.get('registration_code')
+        # Check if request is from JSON (from React app)
+        if request.is_json:
+            data = request.get_json()
+            registration_code = data.get('code')
+            username = data.get('username')
+            password = data.get('password')
+        else:
+            # Handle form data (from traditional form submission)
+            registration_code = request.form.get('registration_code')
+            username = request.form.get('username')
+            password = request.form.get('password')
+
+        # Check registration code
         code = RegistrationCode.query.filter_by(code=registration_code, is_used=False).first()
         if not code:
-            flash('Invalid or used registration code.')
-            return redirect(url_for('auth.register'))
+            message = 'Invalid or used registration code.'
+            if request.is_json:
+                return jsonify({'error': message}), 400
+            else:
+                flash(message)
+                return redirect(url_for('auth.register'))
 
-        # Extract data from form
-        username = request.form.get('username')
-        password = request.form.get('password')
+        # Check if user exists
+        if User.query.filter_by(username=username).first():
+            message = 'User already exists.'
+            if request.is_json:
+                return jsonify({'error': message}), 409
+            else:
+                flash(message)
+                return redirect(url_for('auth.register'))
 
         # Create new user object
         user = User(username=username)
-        user.password = password  # This will hash the password
+        user.password = password  # This should hash the password
         user.role = "instructor"
 
         code.is_used = True
@@ -31,8 +52,12 @@ def register():
         db.session.add(user)
         db.session.commit()
 
-        flash('Registration successful.')
-        return redirect(url_for('auth.login'))
+        message = 'Registration successful.'
+        if request.is_json:
+            return jsonify({'message': message}), 201
+        else:
+            flash(message)
+            return redirect(url_for('auth.login'))
 
     return render_template('register.html')
 
@@ -43,24 +68,68 @@ def login():
         return render_template('already_logged_in.html')
 
     if request.method == 'POST':
-        username = request.form.get('username')
-        password = request.form.get('password')
+        # Check if the request is JSON (from React app)
+        if request.is_json:
+            data = request.get_json()
+            username = data.get('username')
+            password = data.get('password')
+        else:
+            # Handle form data (from traditional form submission)
+            username = request.form.get('username')
+            password = request.form.get('password')
+
+        # data = request.get_json()
+        # username = data.get('username')
+        # password = data.get('password')
 
         user = User.query.filter_by(username=username).first()
+
+        # Check valid login
         if user is not None and user.verify_password(password):
             login_user(user)
-            return redirect(url_for('auth.login_success'))  # Redirect to the main page of your app
+            print("Logged in as: ", current_user.username)
+            print("Authenticated? ", current_user.is_authenticated)
+            print("Session: ", session)
+            message = 'Login successful. Returning now.'
+            # return jsonify({'message': message}), 200
+            if request.is_json:
+                return jsonify({'message': message}), 200
+            else:
+                return redirect(url_for('auth.login_success'))  # Adjust this to your main page
 
-        flash('Invalid username or password.')
+        # Invalid login
+        message = 'Invalid username or password.'
+        # return jsonify({'error': message}), 401
+        if request.is_json:
+            return jsonify({'error': message}), 401
+        else:
+            flash(message)
+            return redirect(url_for('auth.login'))
 
+    print("We didn't go into the post if statement...")
     return render_template('login.html')
+    # return jsonify({'message': 'idk how we got here'}), 401
 
 # Render the login success page
 @auth.route('/login-success')
 def login_success():
     return render_template('login-success.html')
 
+# Logout
 @auth.route('/logout', methods=['POST'])
 def logout():
     logout_user()
-    return redirect(url_for('auth.login'))  # Redirect to the login page after logout
+    if request.is_json:
+        return jsonify({'message': 'Logged out successfully'}), 200
+    else:
+        return redirect(url_for('auth.login'))  # Redirect to the login page after logout
+
+# Get current user data
+@auth.route('/current-user', methods=['GET'])
+def get_current_user():
+    print("Getting current user username: ", current_user)
+    print("Session: ", session)
+    if current_user.is_authenticated:
+        return jsonify(username=current_user.username)
+    print("Not authenticated?")
+    return jsonify(error='Not logged in'), 401
