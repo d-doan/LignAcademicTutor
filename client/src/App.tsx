@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import TopBar from './components/TopBar';
 import MyLinkComponent from './components/TopicList';
-import QuestionBank from './components/QuestionBank';
+import TopicList from './components/QuestionBank';
 import LoginPage from './components/LoginPage';
 import CreateAccountPage from './components/CreateAccountPage';
 
@@ -58,7 +58,7 @@ function App() {
         <Routes>
             <Route path="/" element={<MyLinkComponent />} />
             {/* <Route path="/your-target-path" element={<YourTargetComponent />} /> */}
-            <Route path="/question-bank/:topic" element={<QuestionBank />} />
+            <Route path="/question-bank/:topic" element={<TopicList />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/create-account" element={<CreateAccountPage />} />
             {/* Other routes */}
