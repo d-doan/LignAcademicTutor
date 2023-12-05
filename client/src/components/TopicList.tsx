@@ -16,9 +16,15 @@ const TopicList = () => {
     };
 
     const menuItems = {
-        trees: ["Oak", "Spruce", "Birch"],
-        rocks: ["Amethyst", "Gold", "Diamond"],
-        plants: ["Roses", "Ferns", "Kelp"],
+        // trees: ["Oak", "Spruce", "Birch"],
+        // rocks: ["Amethyst", "Gold", "Diamond"],
+        // plants: ["Roses", "Ferns", "Kelp"],
+        phonetics: ["Transcription"],
+        phonology: ["Phonological rules"],
+        morphology: [],
+        syntax: ["Generate Syntax Trees"],
+        semantics: ["Entailment vs. Implicature"],
+        pragmatics: ["Maxims"]
         // Add other categories and their items here
     };
 

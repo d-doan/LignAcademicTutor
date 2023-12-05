@@ -45,6 +45,36 @@ const exampleQuestions: Question[] = [
       questionText: "In which continent is the Sahara Desert located?",
       options: ["Asia", "Africa", "North America", "South America"],
       correctAnswer: "Africa"
+    },
+    {
+      id: 5,
+      questionText: "In which continent is the Sahara Desert located?",
+      options: ["Asia", "Africa", "North America", "South America", "Antarctica", "Australia", "Europe"],
+      correctAnswer: "Africa"
+    },
+    {
+      id: 6,
+      questionText: "In which continent is the Sahara Desert located?",
+      options: ["Asia", "Africa", "North America", "South America"],
+      correctAnswer: "Africa"
+    },
+    {
+      id: 7,
+      questionText: "In which continent is the Sahara Desert located?",
+      options: ["Asia", "Africa", "North America", "South America"],
+      correctAnswer: "Africa"
+    },
+    {
+      id: 8,
+      questionText: "In which continent is the Sahara Desert located?",
+      options: ["Asia", "Africa", "North America", "South America"],
+      correctAnswer: "Africa"
+    },
+    {
+      id: 9,
+      questionText: "In which continent is the Sahara Desert located?",
+      options: ["Asia", "Africa", "North America", "South America"],
+      correctAnswer: "Africa"
     }
   ];
 
@@ -58,13 +88,11 @@ const QuestionBank = () => {
     const [submitted, setSubmitted] = useState(false);
     const [isCorrect, setIsCorrect] = useState(false);
 
-    // current question index constants
+    // question index constants
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-    const [questionsAnswered, setQuestionsAnswered] = useState(new Set());
     const exampleQuestion = exampleQuestions[currentQuestionIndex];
-
-    // Initialize state to keep track of answered questions and their selected options
     const [answeredQuestions, setAnsweredQuestions] = useState(new Map<number, { selectedOption: string; isCorrect: boolean; wasEverCorrect: boolean }>());
+    const [lastReachedQuestionIndex, setLastReachedQuestionIndex] = useState(0);
 
     // Side Panel constants
     const [isSidePanelVisible, setIsSidePanelVisible] = useState(false);
@@ -120,6 +148,7 @@ const QuestionBank = () => {
     const handleNext = () => {
         if (currentQuestionIndex < exampleQuestions.length - 1) {
             setCurrentQuestionIndex(currentQuestionIndex + 1);
+            setLastReachedQuestionIndex(Math.max(lastReachedQuestionIndex, currentQuestionIndex + 1));
             setSubmitted(false);
             setSelectedOption("");
         }
@@ -134,11 +163,12 @@ const QuestionBank = () => {
         if (!isVisible) return null;
       
         return (
-            <div style={{ width: '200px' /* Adjust as needed */ }}>
+            <div style={{ width: '200px', height: '350px', overflowY: 'auto' }}>
                 {exampleQuestions.map((question, index) => (
-                    <div 
+                    <Button 
                         key={question.id} 
                         onClick={() => onQuestionSelect(index)}
+                        disabled={index > lastReachedQuestionIndex}
                         style={{
                             cursor: 'pointer', // Changes the cursor to a pointer
                             padding: '10px', // Optional: for better spacing
@@ -149,7 +179,7 @@ const QuestionBank = () => {
                         }}
                     >
                         Question {index + 1}
-                    </div>
+                    </Button>
                 ))}
             </div>
         );
@@ -187,11 +217,11 @@ const QuestionBank = () => {
             <Button variant="outlined" sx={{ margin: "20px" }} onClick={() => navigate('/')}>Back to Menu</Button>
             <h2 style={{ margin: '0px' }}>{topic.charAt(0).toUpperCase() + topic.slice(1)} Question Bank</h2>
             {/* Content based on the topic */}
-            <div style={{ display: 'flex' }}>
-                <Paper style={{ width:'70%', padding: '20px', margin: '20px',  }}>
+            <div style={{ display: 'flex', alignItems:"center" }}>
+                <Paper style={{ width:'500px', height: '300px', padding: '20px', margin: '20px', overflowY: 'auto' }}>
                     <FormControl component="fieldset" style={{ width: '100%' }}>
                         <FormLabel component="legend">
-                            <Typography variant="h6">{exampleQuestion.questionText}</Typography>
+                            <Typography variant="h6">{exampleQuestion.id}. {exampleQuestion.questionText}</Typography>
                         </FormLabel>
                         <RadioGroup name="questionOptions" value={selectedOption} onChange={handleOptionChange}>
                             {exampleQuestion.options.map((option, index) => (
@@ -218,7 +248,7 @@ const QuestionBank = () => {
                             </Button>
 
                             <Button variant="contained" style={{ width:"250px", marginLeft: 'auto' }} onClick={toggleSidePanel}>
-                                Toggle Questions
+                                View Question List
                             </Button>
                         </Box>
                         {submitted && (
@@ -228,7 +258,7 @@ const QuestionBank = () => {
                         )}
                     </FormControl>
                 </Paper>
-                <SidePanel isVisible={isSidePanelVisible} onQuestionSelect={handleQuestionSelect} />
+                <SidePanel isVisible={isSidePanelVisible} onQuestionSelect={handleQuestionSelect}/>
             </div>
         </Box>
     );
