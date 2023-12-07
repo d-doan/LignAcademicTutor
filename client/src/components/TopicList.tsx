@@ -21,7 +21,7 @@ const TopicList = () => {
         // plants: ["Roses", "Ferns", "Kelp"],
         phonetics: ["Transcription"],
         phonology: ["Phonological Rules"],
-        syntax: ["Generate Syntax Trees"],
+        syntax: ["Syntax Trees"],
         semantics: ["Entailment vs. Implicature"],
         pragmatics: ["Maxims"]
         // Add other categories and their items here

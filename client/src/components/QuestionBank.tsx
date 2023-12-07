@@ -13,6 +13,7 @@ interface Question {
     questionText: string;
     options: string[];
     correctAnswer: string;
+    explanation: string;
 }
 
 // Side panel props
@@ -20,68 +21,6 @@ type SidePanelProps = {
     isVisible: boolean;
     onQuestionSelect: (index: number) => void;
 };
-
-const mockResponse = {
-    questions: [
-        {
-            id: 1,
-            question: "What is the primary function of...",
-            choices: ["A. Option One", "B. Option Two", "C. Option Three", "D. Option Four"],
-            correctAnswer: "B. Option Two",
-            explanation: "Option B is correct because..."
-        },
-        {
-            id: 2,
-            question: "Another question...",
-            choices: ["A. Option One", "B. Option Two", "C. Option Three", "D. Option Four"],
-            correctAnswer: "C. Option Three",
-            explanation: "Option C is correct because..."
-        },
-        {
-            id: 3,
-            question: "Another question...",
-            choices: ["A. Option One", "B. Option Two", "C. Option Three", "D. Option Four"],
-            correctAnswer: "C. Option Three",
-            explanation: "Option C is correct because..."
-        },
-        {
-            id: 4,
-            question: "Another question...",
-            choices: ["A. Option One", "B. Option Two", "C. Option Three", "D. Option Four"],
-            correctAnswer: "C. Option Three",
-            explanation: "Option C is correct because..."
-        },
-        {
-            id: 5,
-            question: "Another question...",
-            choices: ["A. Option One", "B. Option Two", "C. Option Three", "D. Option Four"],
-            correctAnswer: "C. Option Three",
-            explanation: "Option C is correct because..."
-        }
-    ]
-};
-
-// Example questions (this will be generated through GPT API call)
-// const questionList: Question[] = [
-    // {
-    //   id: 1,
-    //   questionText: "What is the capital of France?",
-    //   options: ["Paris", "London", "Berlin", "Rome"],
-    //   correctAnswer: "Paris"
-    // },
-    // {
-    //     id: 2,
-    //     questionText: "What is the capital of France?",
-    //     options: ["Paris", "London", "Berlin", "Rome"],
-    //     correctAnswer: "Paris"
-    //   },
-    //   {
-    //     id: 3,
-    //     questionText: "What is the capital of France?",
-    //     options: ["Paris", "London", "Berlin", "Rome"],
-    //     correctAnswer: "Paris"
-    //   },
-//   ];
 
 const QuestionBank = () => {
     const navigate = useNavigate();
@@ -284,7 +223,7 @@ const [hasEffectRun, setHasEffectRun] = useState(false);
             const subtopicMappings: { [key: string]: string } = {
                 'Transcription': 'transcription',
                 'Phonological Rules': 'phonrules',
-                'Generate Syntax Trees': 'trees',
+                'Syntax Trees': 'trees',
                 'Entailment vs. Implicature': 'entailment',
                 'Maxims': 'maxims',
             };
@@ -315,8 +254,8 @@ const [hasEffectRun, setHasEffectRun] = useState(false);
         const questions: Question[] = [];
     
         response.questions.forEach((questionObject) => {
-            const { id, question, choices, correctAnswer } = questionObject;
-            if (Array.isArray(choices) && typeof question === 'string' && typeof correctAnswer === 'string') {
+            const { id, question, choices, correctAnswer, explanation } = questionObject;
+            if (Array.isArray(choices) && typeof question === 'string' && typeof correctAnswer === 'string' && typeof explanation === 'string') {
                 const questionText = question.trim();
                 const options = choices.map((choice: string) => choice.trim());
     
@@ -325,6 +264,7 @@ const [hasEffectRun, setHasEffectRun] = useState(false);
                     questionText,
                     options,
                     correctAnswer,
+                    explanation,
                 });
             }
         });
@@ -447,7 +387,7 @@ const [hasEffectRun, setHasEffectRun] = useState(false);
                                 </Box>
                                 {submitted && (
                                     <Typography style={{ marginTop: '20px' }}>
-                                        {isCorrect ? 'Correct Answer!' : 'Incorrect Answer.'}
+                                        {isCorrect ? 'Correct Answer!' : 'Incorrect Answer. ' + exampleQuestion.explanation}
                                     </Typography>
                                 )}
                             </FormControl>
