@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Box, Typography, Radio, RadioGroup, FormControlLabel, FormControl, FormLabel, Paper, Button } from '@mui/material';
+import { Box, Typography, Radio, RadioGroup, FormControlLabel, FormControl, FormLabel, Paper, Button, IconButton } from '@mui/material';
+import FlagOutlinedIcon from '@mui/icons-material/FlagOutlined';
 
 interface RouteParams {
     [key: string]: string | undefined;
@@ -20,68 +21,78 @@ type SidePanelProps = {
     onQuestionSelect: (index: number) => void;
 };
 
+const mockResponse = {
+    questions: [
+        {
+            id: 1,
+            question: "What is the primary function of...",
+            choices: ["A. Option One", "B. Option Two", "C. Option Three", "D. Option Four"],
+            correctAnswer: "B. Option Two",
+            explanation: "Option B is correct because..."
+        },
+        {
+            id: 2,
+            question: "Another question...",
+            choices: ["A. Option One", "B. Option Two", "C. Option Three", "D. Option Four"],
+            correctAnswer: "C. Option Three",
+            explanation: "Option C is correct because..."
+        },
+        {
+            id: 3,
+            question: "Another question...",
+            choices: ["A. Option One", "B. Option Two", "C. Option Three", "D. Option Four"],
+            correctAnswer: "C. Option Three",
+            explanation: "Option C is correct because..."
+        },
+        {
+            id: 4,
+            question: "Another question...",
+            choices: ["A. Option One", "B. Option Two", "C. Option Three", "D. Option Four"],
+            correctAnswer: "C. Option Three",
+            explanation: "Option C is correct because..."
+        },
+        {
+            id: 5,
+            question: "Another question...",
+            choices: ["A. Option One", "B. Option Two", "C. Option Three", "D. Option Four"],
+            correctAnswer: "C. Option Three",
+            explanation: "Option C is correct because..."
+        }
+    ]
+};
+
 // Example questions (this will be generated through GPT API call)
-const exampleQuestions: Question[] = [
-    {
-      id: 1,
-      questionText: "What is the capital of France?",
-      options: ["Paris", "London", "Berlin", "Rome"],
-      correctAnswer: "Paris"
-    },
-    {
-      id: 2,
-      questionText: "What is the largest ocean on Earth?",
-      options: ["Atlantic Ocean", "Indian Ocean", "Arctic Ocean", "Pacific Ocean"],
-      correctAnswer: "Pacific Ocean"
-    },
-    {
-      id: 3,
-      questionText: "What is the most spoken language in the world?",
-      options: ["English", "Mandarin", "Hindi", "Spanish"],
-      correctAnswer: "Mandarin"
-    },
-    {
-      id: 4,
-      questionText: "In which continent is the Sahara Desert located?",
-      options: ["Asia", "Africa", "North America", "South America"],
-      correctAnswer: "Africa"
-    },
-    {
-      id: 5,
-      questionText: "In which continent is the Sahara Desert located?",
-      options: ["Asia", "Africa", "North America", "South America", "Antarctica", "Australia", "Europe"],
-      correctAnswer: "Africa"
-    },
-    {
-      id: 6,
-      questionText: "In which continent is the Sahara Desert located?",
-      options: ["Asia", "Africa", "North America", "South America"],
-      correctAnswer: "Africa"
-    },
-    {
-      id: 7,
-      questionText: "In which continent is the Sahara Desert located?",
-      options: ["Asia", "Africa", "North America", "South America"],
-      correctAnswer: "Africa"
-    },
-    {
-      id: 8,
-      questionText: "In which continent is the Sahara Desert located?",
-      options: ["Asia", "Africa", "North America", "South America"],
-      correctAnswer: "Africa"
-    },
-    {
-      id: 9,
-      questionText: "In which continent is the Sahara Desert located?",
-      options: ["Asia", "Africa", "North America", "South America"],
-      correctAnswer: "Africa"
-    }
-  ];
+// const questionList: Question[] = [
+    // {
+    //   id: 1,
+    //   questionText: "What is the capital of France?",
+    //   options: ["Paris", "London", "Berlin", "Rome"],
+    //   correctAnswer: "Paris"
+    // },
+    // {
+    //     id: 2,
+    //     questionText: "What is the capital of France?",
+    //     options: ["Paris", "London", "Berlin", "Rome"],
+    //     correctAnswer: "Paris"
+    //   },
+    //   {
+    //     id: 3,
+    //     questionText: "What is the capital of France?",
+    //     options: ["Paris", "London", "Berlin", "Rome"],
+    //     correctAnswer: "Paris"
+    //   },
+//   ];
 
 const QuestionBank = () => {
     const navigate = useNavigate();
     const params = useParams<RouteParams>();
     const topic = params.topic ?? 'default';
+    const subtopic = params.subtopic ?? 'default';
+
+// generated questions
+const [questionList, setQuestionList] = useState<Question[]>([]);
+const [dataLoaded, setDataLoaded] = useState(false);
+const [hasEffectRun, setHasEffectRun] = useState(false);
 
 // question submission
     const [selectedOption, setSelectedOption] = useState("");
@@ -95,7 +106,7 @@ const QuestionBank = () => {
 
     const handleSubmit = () => {
         setSubmitted(true);
-        const isAnswerCorrect = selectedOption === exampleQuestions[currentQuestionIndex].correctAnswer;
+        const isAnswerCorrect = selectedOption === questionList[currentQuestionIndex].correctAnswer;
         setIsCorrect(isAnswerCorrect);
 
         // Always update the answeredQuestions with the current submission
@@ -104,15 +115,16 @@ const QuestionBank = () => {
             return new Map(prev).set(currentQuestionIndex, { 
                 selectedOption, 
                 isCorrect: isAnswerCorrect,
-                wasEverCorrect: currentAnswer?.wasEverCorrect || isAnswerCorrect // Set wasEverCorrect to true if it was ever correct before or is correct now
+                wasEverCorrect: currentAnswer?.wasEverCorrect || isAnswerCorrect, // Set wasEverCorrect to true if it was ever correct before or is correct now
+                isFlagClicked: isFlagClicked,
             });
         });
     };
     
 // handle question access
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-    const exampleQuestion = exampleQuestions[currentQuestionIndex];
-    const [answeredQuestions, setAnsweredQuestions] = useState(new Map<number, { selectedOption: string; isCorrect: boolean; wasEverCorrect: boolean }>());
+    const exampleQuestion = questionList[currentQuestionIndex];
+    const [answeredQuestions, setAnsweredQuestions] = useState(new Map<number, { selectedOption: string; isCorrect: boolean; wasEverCorrect: boolean; isFlagClicked: boolean }>());
     const [lastReachedQuestionIndex, setLastReachedQuestionIndex] = useState(0);
 
     // Function to navigate to the previous question
@@ -126,7 +138,7 @@ const QuestionBank = () => {
 
     // Function to navigate to the next question
     const handleNext = () => {
-        if (currentQuestionIndex < exampleQuestions.length - 1) {
+        if (currentQuestionIndex < questionList.length - 1) {
             setCurrentQuestionIndex(currentQuestionIndex + 1);
             setLastReachedQuestionIndex(Math.max(lastReachedQuestionIndex, currentQuestionIndex + 1));
             setSubmitted(false);
@@ -135,7 +147,7 @@ const QuestionBank = () => {
     };
 
     // The "Next" button should be disabled only if the question hasn't been answered correctly at least once
-    const isNextButtonDisabled = !answeredQuestions.get(currentQuestionIndex)?.wasEverCorrect || currentQuestionIndex === exampleQuestions.length - 1;;
+    const isNextButtonDisabled = !answeredQuestions.get(currentQuestionIndex)?.wasEverCorrect || currentQuestionIndex === questionList.length - 1;;
 
 // Instructor Feedback constants
     const [user, setUser] = useState(null);
@@ -182,7 +194,7 @@ const QuestionBank = () => {
             headers: {
               'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ topic, feedbackText }), // Send the text as JSON
+            body: JSON.stringify({ subtopic, feedbackText }), // Send the text as JSON
           });
           if (response.ok) {
             // Handle successful submission, show a success message
@@ -211,7 +223,7 @@ const QuestionBank = () => {
       
         return (
             <div style={{ width: '200px', height: '350px', overflowY: 'auto' }}>
-                {exampleQuestions.map((question, index) => (
+                {questionList.map((question, index) => (
                     <Button 
                         key={question.id} 
                         onClick={() => onQuestionSelect(index)}
@@ -259,6 +271,81 @@ const QuestionBank = () => {
         }
         return {  };
     };
+// Report flag
+    const [isFlagClicked, setIsFlagClicked] = useState(false);
+    const handleReportClick = () => {
+        setIsFlagClicked(!isFlagClicked);
+    };
+
+// Generate questions
+    const fetchAndAddQuestions = async () => {
+        // Check if the question list is empty or if the user is at the last question
+        if (questionList.length === 0) { // || currentQuestionIndex === questionList.length - 1 when we get persistence across page refresh working
+            const subtopicMappings: { [key: string]: string } = {
+                'Transcription': 'transcription',
+                'Phonological Rules': 'phonrules',
+                'Generate Syntax Trees': 'trees',
+                'Entailment vs. Implicature': 'entailment',
+                'Maxims': 'maxims',
+            };
+            const formattedSubtopic = subtopicMappings[subtopic] || subtopic.toLowerCase();
+            try {
+                const response = await fetch(`/gpt/${topic}/${formattedSubtopic}`, {
+                    method: 'GET',
+                    credentials: 'include',  // if your backend relies on cookies
+                });
+                if (response.ok) {
+                    const questionData = await response.json();
+                    console.log("questionData: ", questionData);
+                    const newQuestions: Question[] = parseGPTQuestions(questionData);
+                    console.log('Fetched and parsed questions:', newQuestions);
+                    setQuestionList(newQuestions); // Update questionList state
+                    setDataLoaded(true); // Mark the data as loaded
+                } else {
+                    // Handle the case where there is an error
+                    console.error('Error fetching data:', response.statusText);
+                }
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            } 
+        }
+    };
+
+    const parseGPTQuestions = (response: { questions: any[] }): Question[] => {
+        const questions: Question[] = [];
+    
+        response.questions.forEach((questionObject) => {
+            const { id, question, choices, correctAnswer } = questionObject;
+            if (Array.isArray(choices) && typeof question === 'string' && typeof correctAnswer === 'string') {
+                const questionText = question.trim();
+                const options = choices.map((choice: string) => choice.trim());
+    
+                questions.push({
+                    id,
+                    questionText,
+                    options,
+                    correctAnswer,
+                });
+            }
+        });
+    
+        return questions;
+    };
+    
+    
+
+// Call fetchAndAddQuestions when the component mounts, only once
+    useEffect(() => {
+        if (!hasEffectRun) {
+            fetchAndAddQuestions();
+            // const newQuestions: Question[] = parseGPTQuestions(mockResponse);
+            // console.log('Fetched and parsed questions:', newQuestions);
+            // setQuestionList(newQuestions); // Update questionList state
+            // setDataLoaded(true); // Mark the data as loaded
+            setHasEffectRun(true); // Set the flag to true to prevent further runs
+        }
+    }, [hasEffectRun]);
+
 
 // Things to do when refreshing page:
 // When changing the question, set the selected option to the one stored in the state
@@ -269,63 +356,109 @@ const QuestionBank = () => {
             setSelectedOption(answered.selectedOption);
             setSubmitted(true);
             setIsCorrect(answered.isCorrect);
+            setIsFlagClicked(answered.isFlagClicked)
         } else {
             // Reset for unanswered questions
             setSelectedOption("");
             setSubmitted(false);
             setIsCorrect(false);
+            setIsFlagClicked(false);
         }
         fetchCurrentUser();
     }, [currentQuestionIndex, answeredQuestions]);
 
+    // // Load answeredQuestions and selectedOption from localStorage on component mount
+    // useEffect(() => {
+    //     const savedAnsweredQuestions = localStorage.getItem('answeredQuestions');
+    //     const savedCurrentQuestionIndex = localStorage.getItem('currentQuestionIndex');
+        
+    //     if (savedAnsweredQuestions) {
+    //       setAnsweredQuestions(new Map(JSON.parse(savedAnsweredQuestions)));
+    //     }
+    //     if (savedCurrentQuestionIndex) {
+    //       setCurrentQuestionIndex(JSON.parse(savedCurrentQuestionIndex));
+    //     }
+    // }, []);
+
+    // // Save answeredQuestions and selectedOption to localStorage whenever they change
+    // useEffect(() => {
+    //     localStorage.setItem('answeredQuestions', JSON.stringify(Array.from(answeredQuestions.entries())));
+    //     localStorage.setItem('currentQuestionIndex', JSON.stringify(currentQuestionIndex));
+    // }, [answeredQuestions, currentQuestionIndex]);
+
+    // // Reset answeredQuestions and selectedOption when needed
+    // const resetState = () => {
+    //     localStorage.removeItem('answeredQuestions');
+    //     localStorage.removeItem('selectedOption');
+    //     setAnsweredQuestions(new Map());
+    //     setSelectedOption('');
+    // };
+
     return (
         <Box display="flex" flexDirection="column" alignItems="center" minHeight="100vh">
-            <Button variant="outlined" sx={{ margin: "20px" }} onClick={() => navigate('/')}>Back to Menu</Button>
-            <h2 style={{ margin: '0px' }}>{topic.charAt(0).toUpperCase() + topic.slice(1)} Question Bank</h2>
+        {/* <Button variant="outlined" sx={{ margin: "20px" }} onClick={() => { resetState(); navigate('/') }}>Back to Menu</Button> */}
+        <Button variant="outlined" sx={{ margin: "20px" }} onClick={() => { navigate('/') }}>Back to Menu</Button>
+            <h2 style={{ margin: '0px' }}>{subtopic.charAt(0).toUpperCase() + subtopic.slice(1)} Question Bank</h2>
             {/* Content based on the topic */}
-            <div style={{ display: 'flex', alignItems:"center" }}>
-                <Paper style={{ width:'500px', height: '300px', padding: '20px', margin: '20px', overflowY: 'auto' }}>
-                    <FormControl component="fieldset" style={{ width: '100%' }}>
-                        <FormLabel component="legend">
-                            <Typography variant="h6">{exampleQuestion.id}. {exampleQuestion.questionText}</Typography>
-                        </FormLabel>
-                        <RadioGroup name="questionOptions" value={selectedOption} onChange={handleOptionChange}>
-                            {exampleQuestion.options.map((option, index) => (
-                                <FormControlLabel 
-                                key={index} 
-                                value={option} 
-                                control={<Radio />} 
-                                label={option} 
-                                style={getOptionStyle(option)}
-                                />
-                            ))}
-                        </RadioGroup>
-                        <Box display="flex" flexDirection="row" alignItems="center">
-                            <Button variant="contained" style={{ width:"100px"}} onClick={handlePrevious} disabled={currentQuestionIndex === 0}>
-                                &lt;Previous
-                            </Button>
-                            
-                            <Button variant="contained" style={{ width:"100px"}} color="primary" onClick={handleSubmit}>
-                                Submit
-                            </Button>
-                            
-                            <Button variant="contained" style={{ width:"100px"}} onClick={handleNext} disabled={isNextButtonDisabled}>
-                                Next&gt;
-                            </Button>
+            {dataLoaded ? (
+                questionList.length === 0 ? (
+                    <Typography variant="body1">No questions available in this topic.</Typography>
+                ) : (
+                    <div style={{ display: 'flex', alignItems:"center" }}>
+                        <IconButton
+                            onClick={handleReportClick} // Add your report click handler here
+                            sx={{ color: isFlagClicked ? 'red' : 'default' }}
+                            aria-label="Report"
+                        >
+                            <FlagOutlinedIcon />
+                        </IconButton>
+                        <Paper style={{ width:'500px', height: '300px', padding: '20px', margin: '20px', overflowY: 'auto' }}>
+                            <FormControl component="fieldset" style={{ width: '100%' }}>
+                                <FormLabel component="legend">
+                                    <Typography variant="h6">{exampleQuestion.id}. {exampleQuestion.questionText}</Typography>
+                                </FormLabel>
+                                <RadioGroup name="questionOptions" value={selectedOption} onChange={handleOptionChange}>
+                                    {exampleQuestion.options.map((option, index) => (
+                                        <FormControlLabel 
+                                        key={index} 
+                                        value={option} 
+                                        control={<Radio />} 
+                                        label={option} 
+                                        style={getOptionStyle(option)}
+                                        />
+                                    ))}
+                                </RadioGroup>
+                                <Box display="flex" flexDirection="row" alignItems="center">
+                                    <Button variant="contained" style={{ width:"100px"}} onClick={handlePrevious} disabled={currentQuestionIndex === 0}>
+                                        &lt;Previous
+                                    </Button>
+                                    
+                                    <Button variant="contained" style={{ width:"100px"}} color="primary" onClick={handleSubmit}>
+                                        Submit
+                                    </Button>
+                                    
+                                    <Button variant="contained" style={{ width:"100px"}} onClick={handleNext} disabled={isNextButtonDisabled}>
+                                        Next&gt;
+                                    </Button>
 
-                            <Button variant="contained" style={{ width:"250px", marginLeft: 'auto' }} onClick={toggleSidePanel}>
-                                View Question List
-                            </Button>
-                        </Box>
-                        {submitted && (
-                            <Typography style={{ marginTop: '20px' }}>
-                                {isCorrect ? 'Correct Answer!' : 'Incorrect Answer.'}
-                            </Typography>
-                        )}
-                    </FormControl>
-                </Paper>
-                <SidePanel isVisible={isSidePanelVisible} onQuestionSelect={handleQuestionSelect}/>
-            </div>
+                                    <Button variant="contained" style={{ width:"250px", marginLeft: 'auto' }} onClick={toggleSidePanel}>
+                                        View Question List
+                                    </Button>
+                                </Box>
+                                {submitted && (
+                                    <Typography style={{ marginTop: '20px' }}>
+                                        {isCorrect ? 'Correct Answer!' : 'Incorrect Answer.'}
+                                    </Typography>
+                                )}
+                            </FormControl>
+                        </Paper>
+                        <SidePanel isVisible={isSidePanelVisible} onQuestionSelect={handleQuestionSelect}/>
+                    </div>
+                )
+            ) : (
+                // Render a loading indicator while waiting for data
+                <p>Loading...</p>
+            )}
             {userRole === 'instructor' && (
                 <Paper elevation={3} style={{ width: '70%', padding: '16px', margin: '16px', display: 'flex', flexDirection: 'column' }}>
                 <Typography variant="h6">Instructor Feedback</Typography>

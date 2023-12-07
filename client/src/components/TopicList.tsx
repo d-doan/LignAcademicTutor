@@ -52,7 +52,7 @@ const TopicList = () => {
                     <ListItem 
                         button 
                         key={value} 
-                        onClick={() => handleNavigate(`/question-bank/${value}`)}
+                        onClick={() => handleNavigate(`/question-bank/${key}/${value}`)}
                         sx={{
                         width: '100%', // Full width for the ListItem
                         }}
