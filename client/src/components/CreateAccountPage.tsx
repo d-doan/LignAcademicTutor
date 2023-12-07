@@ -42,7 +42,31 @@ const CreateAccountPage: React.FC = () => {
             if (response.ok) {
                 const data = await response.json();
                 alert(data.message);  // Or handle user redirection, etc.
-                navigate('/'); // Route to menu or login page
+
+                // Login user to created account
+                try {
+                    const response = await fetch('/auth/login', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ username, password }),
+                        credentials: 'include',
+                    });
+            
+                    if (response.ok) {
+                        const data = await response.json();
+                        navigate('/'); // Route to menu or dashboard
+                    } else {
+                        const errorData = await response.json();
+                        alert(errorData.error);  // Display error message from server
+                    }
+                } catch (error) {
+                    console.error('Error during login:', error);
+                    alert('Error during login. Please try again.');
+                }
+
+                navigate('/'); // Route to menu
             } else {
                 const errorData = await response.json();
                 alert(errorData.error);  // Display error message from server
@@ -67,22 +91,22 @@ const CreateAccountPage: React.FC = () => {
 
     return (
         <Box display="flex" flexDirection="column" alignItems="center" justifyContent="center" minHeight="100vh">
-        <Paper elevation={3} sx={{ padding: 4 }}>
-            <Typography variant="h5" component="h1" sx={{ textAlign: 'center' }}>
-            Create Account
-            </Typography>
-            <Box component="form" sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 2 }}>
-            <TextField label="Username" type="text" required value={username} onChange={handleUsernameChange} />
-            <TextField label="Password" type="password" required value={password} onChange={handlePasswordChange} />
-            <TextField label="Authentication Code" type="text" required value={code} onChange={handleCodeChange}/>
-            <Button variant="contained" color="primary" onClick={handleCreateAccount}>
-                Create Account
-            </Button>
-            <Button color="secondary" onClick={handleLogin}>
-                Sign In
-            </Button>
-            </Box>
-        </Paper>
+            <Paper elevation={3} sx={{ padding: 4 }}>
+                <Typography variant="h5" component="h1" sx={{ textAlign: 'center' }}>
+                    Create Account
+                </Typography>
+                <Box component="form" sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 2 }}>
+                <TextField label="Username" type="text" required value={username} onChange={handleUsernameChange} />
+                <TextField label="Password" type="password" required value={password} onChange={handlePasswordChange} />
+                <TextField label="Authentication Code" type="text" required value={code} onChange={handleCodeChange}/>
+                <Button variant="contained" color="primary" onClick={handleCreateAccount}>
+                    Create Account
+                </Button>
+                <Button color="secondary" onClick={handleLogin}>
+                    Sign In
+                </Button>
+                </Box>
+            </Paper>
         </Box>
     );
 };

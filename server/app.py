@@ -20,8 +20,9 @@ def create_app():
     app.config['SECRET_KEY'] = os.environ.get('FLASK_SECRET_KEY', 'default_key')
     app.config['OPENAI_API_KEY'] = os.environ.get('OPEN_AI_API_KEY')
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///lignacademictutor.db'
+    # app.config['SESSION_COOKIE_NAME'] = 'LIGN101SESSION'
     app.config['SESSION_COOKIE_SECURE'] = False  # Set to True if using HTTPS
-    app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'  # or 'None' if necessary
+    app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'  # or 'None' if necessary, 'True' to ensure HTTP only (not backend?)
 
     db.init_app(app)
 

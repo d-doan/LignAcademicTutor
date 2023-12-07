@@ -5,6 +5,7 @@ import MyLinkComponent from './components/TopicList';
 import TopicList from './components/QuestionBank';
 import LoginPage from './components/LoginPage';
 import CreateAccountPage from './components/CreateAccountPage';
+import QuestionBank from './components/QuestionBank';
 
 interface User {
     username: string;
@@ -59,6 +60,7 @@ function App() {
             <Route path="/" element={<MyLinkComponent />} />
             {/* <Route path="/your-target-path" element={<YourTargetComponent />} /> */}
             <Route path="/question-bank/:topic" element={<TopicList />} />
+            <Route path="/question-bank/:topic/:subtopic" element={<QuestionBank />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/create-account" element={<CreateAccountPage />} />
             {/* Other routes */}

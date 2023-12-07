@@ -127,9 +127,17 @@ def logout():
 # Get current user data
 @auth.route('/current-user', methods=['GET'])
 def get_current_user():
-    print("Getting current user username: ", current_user)
-    print("Session: ", session)
+    # print("Getting current user username: ", current_user)
+    # print("Session: ", session)
     if current_user.is_authenticated:
         return jsonify(username=current_user.username)
-    print("Not authenticated?")
+    # print("Not authenticated?")
     return jsonify(error='Not logged in'), 401
+
+# Submit instructor feedback
+@auth.route('/feedback', methods=['GET', 'POST'])
+def submit_feedback():
+    if request.method == 'POST':
+        # submission logic
+        return jsonify("Feedback Submitted!"), 200
+    return jsonify("Error with submitting feedback"), 404
