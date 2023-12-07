@@ -1,7 +1,7 @@
 
-# imports
+# installs
 ## TODO !
 
 
 # .env setup
-## TODO !
+OPEN_AI_API_KEY=[api key here]

@@ -38,3 +38,8 @@ class RegistrationCode(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     code = db.Column(db.String(100), unique=True, nullable=False)
     is_used = db.Column(db.Boolean, default=False)
+
+class Feedback(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    topic_id = db.Column(db.Integer, db.ForeignKey('topic.id'), nullable=False)
+    text = db.Column(db.Text, nullable=False)
