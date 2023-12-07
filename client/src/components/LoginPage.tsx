@@ -61,21 +61,21 @@ const LoginPage: React.FC = () => {
 
     return (
         <Box display="flex" flexDirection="column" alignItems="center" justifyContent="center" minHeight="100vh">
-        <Paper elevation={3} sx={{ padding: 4 }}>
-            <Typography variant="h5" component="h1" sx={{ textAlign: 'center' }}>
-            Log In
-            </Typography>
-            <Box component="form" sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 2 }}>
-            <TextField label="Username" type="text" required value={username} onChange={handleUsernameChange} />
-            <TextField label="Password" type="password" required value={password} onChange={handlePasswordChange} />
-            <Button variant="contained" color="primary" onClick={handleLogin}>
+            <Paper elevation={3} sx={{ padding: 4 }}>
+                <Typography variant="h5" component="h1" sx={{ textAlign: 'center' }}>
                 Log In
-            </Button>
-            <Button color="secondary" onClick={handleCreateAccount}>
-                Create an Account
-            </Button>
-            </Box>
-        </Paper>
+                </Typography>
+                <Box component="form" sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 2 }}>
+                <TextField label="Username" type="text" required value={username} onChange={handleUsernameChange} />
+                <TextField label="Password" type="password" required value={password} onChange={handlePasswordChange} />
+                <Button variant="contained" color="primary" onClick={handleLogin}>
+                    Log In
+                </Button>
+                <Button color="secondary" onClick={handleCreateAccount}>
+                    Create an Account
+                </Button>
+                </Box>
+            </Paper>
         </Box>
     );
 };

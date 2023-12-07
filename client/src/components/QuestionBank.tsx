@@ -83,34 +83,10 @@ const QuestionBank = () => {
     const params = useParams<RouteParams>();
     const topic = params.topic ?? 'default';
 
-    // submission constants
+// question submission
     const [selectedOption, setSelectedOption] = useState("");
     const [submitted, setSubmitted] = useState(false);
     const [isCorrect, setIsCorrect] = useState(false);
-
-    // question index constants
-    const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-    const exampleQuestion = exampleQuestions[currentQuestionIndex];
-    const [answeredQuestions, setAnsweredQuestions] = useState(new Map<number, { selectedOption: string; isCorrect: boolean; wasEverCorrect: boolean }>());
-    const [lastReachedQuestionIndex, setLastReachedQuestionIndex] = useState(0);
-
-    // Side Panel constants
-    const [isSidePanelVisible, setIsSidePanelVisible] = useState(false);
-
-    // When changing the question, set the selected option to the one stored in the state
-    useEffect(() => {
-        const answered = answeredQuestions.get(currentQuestionIndex);
-        if (answered) {
-            setSelectedOption(answered.selectedOption);
-            setSubmitted(true);
-            setIsCorrect(answered.isCorrect);
-        } else {
-            // Reset for unanswered questions
-            setSelectedOption("");
-            setSubmitted(false);
-            setIsCorrect(false);
-        }
-        }, [currentQuestionIndex, answeredQuestions]);
 
     const handleOptionChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setSelectedOption(event.target.value);
@@ -132,8 +108,12 @@ const QuestionBank = () => {
             });
         });
     };
-    // The "Next" button should be disabled only if the question hasn't been answered correctly at least once
-    const isNextButtonDisabled = !answeredQuestions.get(currentQuestionIndex)?.wasEverCorrect || currentQuestionIndex === exampleQuestions.length - 1;;
+    
+// handle question access
+    const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+    const exampleQuestion = exampleQuestions[currentQuestionIndex];
+    const [answeredQuestions, setAnsweredQuestions] = useState(new Map<number, { selectedOption: string; isCorrect: boolean; wasEverCorrect: boolean }>());
+    const [lastReachedQuestionIndex, setLastReachedQuestionIndex] = useState(0);
 
     // Function to navigate to the previous question
     const handlePrevious = () => {
@@ -154,7 +134,74 @@ const QuestionBank = () => {
         }
     };
 
-    // Side Panel logic
+    // The "Next" button should be disabled only if the question hasn't been answered correctly at least once
+    const isNextButtonDisabled = !answeredQuestions.get(currentQuestionIndex)?.wasEverCorrect || currentQuestionIndex === exampleQuestions.length - 1;;
+
+// Instructor Feedback constants
+    const [user, setUser] = useState(null);
+    // TODO: set default to student
+    const [userRole, setUserRole] = useState('instructor'); // Default to student
+    const [feedbackText, setFeedbackText] = useState('');
+    const handleTextChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+        const textarea = event.target;
+        textarea.style.height = 'auto'; // Reset the height to auto to calculate the actual height needed
+        const computedHeight = Math.max(textarea.scrollHeight, 40); // Set a minimum height
+        textarea.style.height = computedHeight + 'px';
+        setFeedbackText(textarea.value);
+    };
+
+    // Get current user (null if student)
+    const fetchCurrentUser = async () => {
+        try {
+          const response = await fetch('/auth/current-user', {
+            method: 'GET',
+            credentials: 'include',
+          });
+          if (response.ok) {
+            const userData = await response.json();
+            setUser(userData);
+    
+            // Set the userRole to 'instructor' if there is a user
+            setUserRole('instructor');
+          } else {
+            setUser(null);
+            setUserRole('student'); // No user, set to student
+          }
+        } catch (error) {
+          console.error('Error fetching current user:', error);
+          setUser(null);
+          setUserRole('student'); // Error, set to student
+        }
+    };
+
+    const handleFeedbackSubmit = async () => {
+        // Make a POST request to your Flask backend to submit the text
+        try {
+          const response = await fetch('/auth/feedback', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ topic, feedbackText }), // Send the text as JSON
+          });
+          if (response.ok) {
+            // Handle successful submission, show a success message
+            window.alert('Feedback submitted successfully.');
+          } else {
+            // Handle submission error, show an error message
+            window.alert('Error submitting feedback: ' + response.statusText);
+          }
+        } catch (error: any) {
+          // Handle network or other errors, show an error message
+          window.alert('Error submitting feedback: ' + error.message);
+        }
+    };
+
+    
+
+// Side Panel logic
+    const [isSidePanelVisible, setIsSidePanelVisible] = useState(false);
+
     const toggleSidePanel = () => {
         setIsSidePanelVisible(!isSidePanelVisible);
     };
@@ -185,6 +232,7 @@ const QuestionBank = () => {
         );
     };
 
+    // display reached questions in sidebar
     const handleQuestionSelect = (index: number) => {
         setCurrentQuestionIndex(index);
         setSubmitted(false);
@@ -212,6 +260,24 @@ const QuestionBank = () => {
         return {  };
     };
 
+// Things to do when refreshing page:
+// When changing the question, set the selected option to the one stored in the state
+// Check if user is logged in (instructor)
+    useEffect(() => {
+        const answered = answeredQuestions.get(currentQuestionIndex);
+        if (answered) {
+            setSelectedOption(answered.selectedOption);
+            setSubmitted(true);
+            setIsCorrect(answered.isCorrect);
+        } else {
+            // Reset for unanswered questions
+            setSelectedOption("");
+            setSubmitted(false);
+            setIsCorrect(false);
+        }
+        fetchCurrentUser();
+    }, [currentQuestionIndex, answeredQuestions]);
+
     return (
         <Box display="flex" flexDirection="column" alignItems="center" minHeight="100vh">
             <Button variant="outlined" sx={{ margin: "20px" }} onClick={() => navigate('/')}>Back to Menu</Button>
@@ -236,7 +302,7 @@ const QuestionBank = () => {
                         </RadioGroup>
                         <Box display="flex" flexDirection="row" alignItems="center">
                             <Button variant="contained" style={{ width:"100px"}} onClick={handlePrevious} disabled={currentQuestionIndex === 0}>
-                                Previous
+                                &lt;Previous
                             </Button>
                             
                             <Button variant="contained" style={{ width:"100px"}} color="primary" onClick={handleSubmit}>
@@ -244,7 +310,7 @@ const QuestionBank = () => {
                             </Button>
                             
                             <Button variant="contained" style={{ width:"100px"}} onClick={handleNext} disabled={isNextButtonDisabled}>
-                                Next
+                                Next&gt;
                             </Button>
 
                             <Button variant="contained" style={{ width:"250px", marginLeft: 'auto' }} onClick={toggleSidePanel}>
@@ -260,6 +326,35 @@ const QuestionBank = () => {
                 </Paper>
                 <SidePanel isVisible={isSidePanelVisible} onQuestionSelect={handleQuestionSelect}/>
             </div>
+            {userRole === 'instructor' && (
+                <Paper elevation={3} style={{ width: '70%', padding: '16px', margin: '16px', display: 'flex', flexDirection: 'column' }}>
+                <Typography variant="h6">Instructor Feedback</Typography>
+                <textarea
+                  value={feedbackText}
+                  onChange={handleTextChange}
+                  placeholder="Type your feedback here..."
+                  style={{
+                    width: '95%',
+                    padding: '8px',
+                    border: '1px solid #ccc',
+                    borderRadius: '4px',
+                    resize: 'none', // Prevent resizing handle
+                    overflowY: 'hidden', // Hide vertical scrollbar
+                    minHeight: '40px', // Minimum height
+                    fontFamily: 'Arial, sans-serif',
+                  }}
+                />
+                <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={handleFeedbackSubmit}
+                    style={{ margin: '10px', alignSelf: 'flex-end' }}
+                    disabled={!feedbackText}
+                >
+                Submit
+                </Button>
+              </Paper>
+            )}
         </Box>
     );
 };

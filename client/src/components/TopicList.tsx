@@ -20,8 +20,7 @@ const TopicList = () => {
         // rocks: ["Amethyst", "Gold", "Diamond"],
         // plants: ["Roses", "Ferns", "Kelp"],
         phonetics: ["Transcription"],
-        phonology: ["Phonological rules"],
-        morphology: [],
+        phonology: ["Phonological Rules"],
         syntax: ["Generate Syntax Trees"],
         semantics: ["Entailment vs. Implicature"],
         pragmatics: ["Maxims"]
@@ -53,7 +52,7 @@ const TopicList = () => {
                     <ListItem 
                         button 
                         key={value} 
-                        onClick={() => handleNavigate(`/question-bank/${value.toLowerCase()}`)}
+                        onClick={() => handleNavigate(`/question-bank/${value}`)}
                         sx={{
                         width: '100%', // Full width for the ListItem
                         }}

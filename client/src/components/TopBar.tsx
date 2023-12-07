@@ -55,6 +55,9 @@ const TopBar: React.FC<TopBarProps> = ({ user }) => {
                 </div>
             ) : (
                 <>
+                    <Typography variant="subtitle1" component="span">
+                        Student
+                    </Typography>
                     <Button color="inherit" onClick={() => navigate('/login')}>Sign In / Create Account</Button>
                     {/* Logout for debugging */}
                     {/* <Button color="inherit" onClick={handleSignOut}>Sign Out</Button> */}
