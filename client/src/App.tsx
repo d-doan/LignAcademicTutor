@@ -7,6 +7,7 @@ import LoginPage from './components/LoginPage';
 import CreateAccountPage from './components/CreateAccountPage';
 import QuestionBank from './components/QuestionBank';
 import GenerateCodes from './components/GenerateCodes';
+import Logs from './components/Logs';
 
 interface User {
     username: string;
@@ -65,6 +66,7 @@ function App() {
             <Route path="/login" element={<LoginPage />} />
             <Route path="/create-account" element={<CreateAccountPage />} />
             <Route path="/generate" element={<GenerateCodes />} />
+            <Route path="/logs" element={<Logs />} />
             {/* Other routes */}
         </Routes>
         </Router>

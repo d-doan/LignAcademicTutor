@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Box, Typography, Radio, RadioGroup, FormControlLabel, FormControl, FormLabel, Paper, Button, IconButton } from '@mui/material';
+import { Box, Typography, Radio, RadioGroup, FormControlLabel, FormControl, FormLabel, Paper, Button, IconButton, Dialog } from '@mui/material';
 import FlagOutlinedIcon from '@mui/icons-material/FlagOutlined';
 
 interface RouteParams {
@@ -212,8 +212,46 @@ const [hasEffectRun, setHasEffectRun] = useState(false);
     };
 // Report flag
     const [isFlagClicked, setIsFlagClicked] = useState(false);
+    const [isPopupOpen, setIsPopupOpen] = useState(false);
+    const [reportText, setReportText] = useState('');
+    const [reportSubmitted, setReportSubmitted] = useState(false);
+
     const handleReportClick = () => {
-        setIsFlagClicked(!isFlagClicked);
+        // Always update the answeredQuestions with the current submission
+        const isAnswerCorrect = selectedOption === questionList[currentQuestionIndex].correctAnswer;
+        setAnsweredQuestions(prev => {
+            const currentAnswer = prev.get(currentQuestionIndex);
+            return new Map(prev).set(currentQuestionIndex, { 
+                selectedOption, 
+                isCorrect: isAnswerCorrect,
+                wasEverCorrect: currentAnswer?.wasEverCorrect || isAnswerCorrect, // Set wasEverCorrect to true if it was ever correct before or is correct now
+                isFlagClicked: true,
+            });
+        });
+        // open popup
+        setIsPopupOpen(true);
+    };
+
+    const handleReportSubmit = () => {
+        // Handle the report submission here
+        console.log('Report:', reportText);
+      
+        // You can send the report data to your server or perform any other necessary actions
+      
+        // Close the modal after submission
+        setIsPopupOpen(false);
+
+        // Show the "Report submitted" alert
+        setReportSubmitted(true);
+
+        // Automatically hide the alert after 5 seconds
+        setTimeout(() => {
+            setReportSubmitted(false);
+        }, 5000);
+    };
+
+    const handleClosePopup = () => {
+        setIsPopupOpen(false);
     };
 
 // Generate questions
@@ -431,6 +469,55 @@ const [hasEffectRun, setHasEffectRun] = useState(false);
                 </Button>
               </Paper>
             )}
+            {/* Report popup */}
+            <div
+                style={{
+                    position: 'fixed',
+                    top: '0',
+                    left: '0',
+                    right: '0',
+                    backgroundColor: 'green',
+                    color: 'white',
+                    textAlign: 'center',
+                    padding: '10px',
+                    zIndex: '999', // Set a high z-index to ensure it appears above other content
+                    transition: 'opacity 0.5s ease-in-out', // Add a fade-in/fade-out transition
+                    opacity: reportSubmitted ? '1' : '0', // Show/hide the popup
+                }}
+            >
+                Report submitted
+            </div>
+            <Dialog open={isPopupOpen} maxWidth='md' fullWidth={true} onClose={handleClosePopup}>
+                {/* Add your custom content for the popup here */}
+                <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', alignItems: 'center', height: '100%' }}>
+                    <h2>Report Question</h2>
+                    <textarea
+                        style={{
+                            width: '95%',
+                            minHeight: '150px',
+                            padding: '8px',
+                            marginBottom: '16px',
+                            border: '1px solid #ccc',
+                            borderRadius: '4px',
+                            resize: 'none',
+                            fontFamily: 'Arial, sans-serif',
+                        }}
+                        placeholder="Please enter your report..."
+                        value={reportText}
+                        onChange={(e) => setReportText(e.target.value)}
+                    />
+                    <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '16px', marginLeft: 'auto' }}>
+                        <Button
+                            onClick={handleReportSubmit}
+                            variant='outlined'
+                            style={{ marginRight: '8px' }}
+                        >
+                            Submit
+                        </Button>
+                        <Button onClick={handleClosePopup} variant='outlined'>Close</Button>
+                    </div>
+                </div>
+            </Dialog>
         </Box>
     );
 };

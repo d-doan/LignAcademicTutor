@@ -67,8 +67,9 @@ const GenerateCodes: React.FC = () => {
         <div>
             <Box display="flex" flexDirection="column" alignItems="center">
                 <Button variant="outlined" sx={{ margin:"20px" }} onClick={() => { navigate('/') }}>Back to Menu</Button>
+                <h1>Generate New Instructor Registration Code</h1>
             </Box>
-            <h1>Generate New Instructor Registration Code</h1>
+            
             <button onClick={generateCode}>Generate Code</button>
 
             <h2>Existing Codes</h2>
