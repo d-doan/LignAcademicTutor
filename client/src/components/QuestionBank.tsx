@@ -275,6 +275,9 @@ const [hasEffectRun, setHasEffectRun] = useState(false);
     
 
 // Call fetchAndAddQuestions when the component mounts, only once
+// Since we are using React.StrictMode (check index.tsx), components are mounted twice
+// a.k.a. we will fetch questions twice
+// https://stackoverflow.com/questions/61254372/my-react-component-is-rendering-twice-because-of-strict-mode
     useEffect(() => {
         if (!hasEffectRun) {
             fetchAndAddQuestions();
