@@ -2,6 +2,9 @@ import json
 from flask import current_app, jsonify, request
 from openai import OpenAI
 
+from server.models.models import Question, Report
+from server.extensions import db
+
 from . import gpt_blueprint
 from .feedback_service import get_feedback_for_gpt, remove_feedback, store_feedback, retrieve_feedback, update_feedback
 
@@ -95,6 +98,8 @@ def generate_pragmatics_maxims():
     return jsonify(response_content)
 
 
+# FEEDBACK ENDPOINTS
+
 @gpt_blueprint.route('/feedback/submit', methods=['POST'])
 def submit_feedback():
     data = request.json
@@ -118,3 +123,29 @@ def edit_feedback(feedback_id):
 def delete_feedback(feedback_id):
     remove_feedback(feedback_id)
     return jsonify({"message": "Feedback deleted successfully"})
+
+
+# REPORT ENDPOINTS
+
+@gpt_blueprint.route('/report/submit', methods=['POST'])
+def submit_report():
+    data = request.json
+    new_report = Report(
+        question_id=data['question_id'],
+        content=data['content']
+    )
+    db.session.add(new_report)
+    db.session.commit()
+    return jsonify({"message": "Report submitted successfully"})
+
+@gpt_blueprint.route('/reports/<topic_id>', methods=['GET'])
+def get_reports(topic_id):
+    reports = Report.query.join(Question).filter(Question.topic_id == topic_id).all()
+    reports_data = [{'id': report.id, 'content': report.content, 'question_id': report.question_id} for report in reports]
+    return jsonify(reports_data)
+
+@gpt_blueprint.route('/reports/unresolved/<topic_id>', methods=['GET'])
+def get_unresolved_reports(topic_id):
+    unresolved_reports = Report.query.join(Question).filter(Question.topic_id == topic_id, Report.is_resolved == False).all()
+    reports_data = [{'id': report.id, 'content': report.content, 'question_id': report.question_id} for report in unresolved_reports]
+    return jsonify(reports_data)

@@ -32,7 +32,6 @@ class Question(db.Model):
     topic_id = db.Column(db.Integer, db.ForeignKey('topic.id'), nullable=False)
     content = db.Column(db.Text, nullable=False)  # e.g., "Identify the correct syntax tree"
     custom_prompt = db.Column(db.Text, nullable=True)  # Additional prompting
-    # may add difficulty level or type
 
 class RegistrationCode(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -44,3 +43,8 @@ class Feedback(db.Model):
     topic_id = db.Column(db.Integer, db.ForeignKey('topic.id'), nullable=False)
     feedback_messages = db.Column(db.JSON, nullable=False)
 
+class Report(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    question_id = db.Column(db.Integer, db.ForeignKey('question.id'), nullable=False)
+    content = db.Column(db.Text, nullable=False)  # The content of the report
+    is_resolved = db.Column(db.Boolean, default=False)  # To track if the report has been addressed
