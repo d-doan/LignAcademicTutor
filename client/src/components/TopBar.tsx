@@ -51,6 +51,10 @@ const TopBar: React.FC<TopBarProps> = ({ user }) => {
                     <Typography variant="subtitle1" component="span">
                         {user.username}
                     </Typography>
+                    {user.username == 'admin' && ( // Check if the user is an admin
+                        <Button color="inherit" onClick={() => navigate('/generate')}>Generate Codes</Button>
+                    )}
+                    <Button color="inherit" onClick={() => navigate('/logs')}>Instructor Logs</Button>
                     <Button color="inherit" onClick={handleSignOut}>Sign Out</Button>
                 </div>
             ) : (

@@ -1,5 +1,5 @@
 import uuid
-from flask import Blueprint, render_template, redirect, request, url_for, flash
+from flask import Blueprint, jsonify, render_template, redirect, request, url_for, flash
 from server.models.models import RegistrationCode, User, db
 from flask_login import current_user, login_user
 
@@ -23,4 +23,6 @@ def generate_code():
         return redirect(url_for('admin.generate_code'))
 
     codes = RegistrationCode.query.all()
-    return render_template('generate_code.html', codes=codes)
+    # Convert the 'codes' data to JSON format and return it
+    code_data = [{'code': code.code, 'is_used': code.is_used} for code in codes]
+    return jsonify(code_data)
