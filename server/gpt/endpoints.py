@@ -79,6 +79,16 @@ def generate_semantics_entailment():
         messages=messages_to_send
     )
     response_content = json.loads(response.choices[0].message.content)
+
+    try:
+        feedback_messages_json = json.loads(feedback_messages)
+    except json.JSONDecodeError as e:
+        # Log the error and the problematic string
+        print(f"JSON decoding error: {e}")
+        print(f"Invalid JSON content: {feedback_messages}")
+
+        # You can decide how to handle the error, e.g., return an error response
+
     return jsonify(response_content)
 
 
@@ -100,27 +110,48 @@ def generate_pragmatics_maxims():
 
 # FEEDBACK ENDPOINTS
 
+@gpt_blueprint.route('/feedback', methods=['GET'])
+def get_feedback():
+    topic_id = request.args.get('topic_id')  # Retrieve the topic_id from the query parameter
+    feedback = retrieve_feedback(topic_id)
+
+    feedback_list = [feedback_item.to_dict() for feedback_item in feedback]
+
+    print(feedback_list)
+
+    return jsonify(feedback_list)
+
+# Modify the route to use <topic_id> as a query parameter
 @gpt_blueprint.route('/feedback/submit', methods=['POST'])
 def submit_feedback():
-    data = request.json
-    topic_id = data['topic_id']
-    feedback_text = data['feedback_text']
-    store_feedback(topic_id, feedback_text)
-    return jsonify({"message": "Feedback submitted successfully"})
+    try:
+        data = request.get_json()
+        topic_id = data.get('topic_id')
+        feedback_text = data.get('feedback_text')
+        
+        # Process the data here
+        
+        return jsonify(success=True)
+    except json.decoder.JSONDecodeError as e:
+        # Handle JSON decoding error
+        error_message = f"JSON decoding error: {str(e)}"
+        return jsonify(success=False, error=error_message), 400
+    except Exception as e:
+        # Handle other exceptions
+        return jsonify(success=False, error=str(e)), 500
 
-@gpt_blueprint.route('/feedback/<topic_id>', methods=['GET'])
-def get_feedback(topic_id):
-    feedback = retrieve_feedback(topic_id)
-    return jsonify(feedback)
-
-@gpt_blueprint.route('/feedback/edit/<feedback_id>', methods=['PUT'])
-def edit_feedback(feedback_id):
+# Modify the route to use <topic_id> as a query parameter
+@gpt_blueprint.route('/feedback/edit', methods=['PUT'])
+def edit_feedback():
+    feedback_id = request.args.get('feedback_id')  # Retrieve the feedback_id from the query parameter
     new_feedback_text = request.json['feedback_text']
     update_feedback(feedback_id, new_feedback_text)
     return jsonify({"message": "Feedback updated successfully"})
 
-@gpt_blueprint.route('/feedback/delete/<feedback_id>', methods=['DELETE'])
-def delete_feedback(feedback_id):
+# Modify the route to use <topic_id> as a query parameter
+@gpt_blueprint.route('/feedback/delete', methods=['DELETE'])
+def delete_feedback():
+    feedback_id = request.args.get('feedback_id')  # Retrieve the feedback_id from the query parameter
     remove_feedback(feedback_id)
     return jsonify({"message": "Feedback deleted successfully"})
 
@@ -149,3 +180,30 @@ def get_unresolved_reports(topic_id):
     unresolved_reports = Report.query.join(Question).filter(Question.topic_id == topic_id, Report.is_resolved == False).all()
     reports_data = [{'id': report.id, 'content': report.content, 'question_id': report.question_id} for report in unresolved_reports]
     return jsonify(reports_data)
+
+
+# Temporary endpoint for testing get_feedback_for_gpt
+@gpt_blueprint.route('/test/get_feedback', methods=['GET'])
+def test_get_feedback_for_gpt():
+    topic_id = request.args.get('topic_id')  # You can pass the topic_id as a query parameter
+    feedback = get_feedback_for_gpt(topic_id)  # Return the list of feedback messages
+
+    if len(feedback) == 0:
+        print("Empty")
+
+    # Print the feedback messages to the console
+    for feedback_item in feedback:
+        print(feedback_item)
+
+    return jsonify({"message": "Test completed"})
+
+@gpt_blueprint.route('/test/add_feedback', methods=['POST'])
+def test_add_feedback():
+    data = request.json
+    topic_id = data['topic_id']
+    feedback_text = data['feedback_text']
+
+    # Call the store_feedback function to add feedback
+    store_feedback(topic_id, feedback_text)
+
+    return jsonify({"message": "Feedback added successfully"})

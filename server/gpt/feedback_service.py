@@ -32,5 +32,7 @@ def remove_feedback(feedback_id):
 def get_feedback_for_gpt(topic_id):
     feedback = retrieve_feedback(topic_id)
     if feedback:
-        return feedback.feedback_messages
+        for fb in feedback:
+            print(fb.feedback_messages)
+        return feedback
     return []
