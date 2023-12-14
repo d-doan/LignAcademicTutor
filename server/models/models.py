@@ -42,4 +42,5 @@ class RegistrationCode(db.Model):
 class Feedback(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     topic_id = db.Column(db.Integer, db.ForeignKey('topic.id'), nullable=False)
-    text = db.Column(db.Text, nullable=False)
+    feedback_messages = db.Column(db.JSON, nullable=False)
+
