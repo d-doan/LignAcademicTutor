@@ -42,6 +42,8 @@ const TopBar: React.FC<TopBarProps> = ({ user }) => {
         <Toolbar sx={{ justifyContent: 'space-between' }}>
             {/* Placeholder div to center the title while having buttons on the side */}
             <div style={{ width: 48 }}></div>
+            <Button color="inherit" onClick={() => navigate('/logs')}>Instructor Logs</Button>
+            <Button color="inherit" onClick={() => navigate('/reports')}>Reported Questions</Button>
             <Typography margin="20px" variant="h4" component="h1" sx={{ flexGrow: 1, textAlign: 'center' }}>
             LIGN 101 AI Assisted Question Bank
             </Typography>
@@ -54,7 +56,6 @@ const TopBar: React.FC<TopBarProps> = ({ user }) => {
                     {user.username == 'admin' && ( // Check if the user is an admin
                         <Button color="inherit" onClick={() => navigate('/generate')}>Generate Codes</Button>
                     )}
-                    <Button color="inherit" onClick={() => navigate('/logs')}>Instructor Logs</Button>
                     <Button color="inherit" onClick={handleSignOut}>Sign Out</Button>
                 </div>
             ) : (
