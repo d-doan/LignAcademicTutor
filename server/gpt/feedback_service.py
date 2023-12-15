@@ -30,7 +30,10 @@ def remove_feedback(feedback_id):
         return False
 
 def get_feedback_for_gpt(topic_id):
-    feedback = retrieve_feedback(topic_id)
-    if feedback:
-        return feedback.feedback_messages
-    return []
+    feedback_objects = retrieve_feedback(topic_id)
+    formatted_feedback_messages = []
+    for feedback in feedback_objects:
+        # Assuming each feedback is a simple string message
+        formatted_message = {"role": "user", "content": feedback.feedback_messages}
+        formatted_feedback_messages.append(formatted_message)
+    return formatted_feedback_messages

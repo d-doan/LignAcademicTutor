@@ -1,5 +1,5 @@
 import React from 'react';
-import { AppBar, Toolbar, Button, Typography } from '@mui/material';
+import { AppBar, Toolbar, Button, Typography, Box } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 
 interface User {
@@ -39,36 +39,39 @@ const TopBar: React.FC<TopBarProps> = ({ user }) => {
 
     return (
         <AppBar position="static" color="default" elevation={0}>
-        <Toolbar sx={{ justifyContent: 'space-between' }}>
-            {/* Placeholder div to center the title while having buttons on the side */}
-            <div style={{ width: 48 }}></div>
-            <Button color="inherit" onClick={() => navigate('/logs')}>Instructor Logs</Button>
-            <Button color="inherit" onClick={() => navigate('/reports')}>Reported Questions</Button>
-            <Typography margin="20px" variant="h4" component="h1" sx={{ flexGrow: 1, textAlign: 'center' }}>
-            LIGN 101 AI Assisted Question Bank
-            </Typography>
-            {/* <Button color="inherit" onClick={() => navigate('/login')}>Log In / Sign Up</Button> */}
-            {user ? (
-                <div>
-                    <Typography variant="subtitle1" component="span">
-                        {user.username}
+            <Toolbar sx={{ justifyContent: 'space-between' }}>
+                <Box display="flex" alignItems="center">
+                    <div>
+                        {user && (
+                            <div>
+                                <Button color="inherit" onClick={() => navigate('/logs')}>Instructor Logs</Button>
+                                <Button color="inherit" onClick={() => navigate('/reports')}>Reported Questions</Button>
+                            </div>
+                        )}
+                    </div>
+                    <Typography variant="h4" component="h1" sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}>
+                        LIGN 101 AI Assisted Question Bank
                     </Typography>
-                    {user.username == 'admin' && ( // Check if the user is an admin
-                        <Button color="inherit" onClick={() => navigate('/generate')}>Generate Codes</Button>
-                    )}
-                    <Button color="inherit" onClick={handleSignOut}>Sign Out</Button>
-                </div>
-            ) : (
-                <>
-                    <Typography variant="subtitle1" component="span">
-                        Student
-                    </Typography>
-                    <Button color="inherit" onClick={() => navigate('/login')}>Sign In / Create Account</Button>
-                    {/* Logout for debugging */}
-                    {/* <Button color="inherit" onClick={handleSignOut}>Sign Out</Button> */}
-                </>
-            )}
-        </Toolbar>
+                </Box>
+                {user ? (
+                    <div>
+                        <Typography variant="subtitle1" component="span">
+                            {user.username}
+                        </Typography>
+                        {user.username == 'admin' && ( // Check if the user is an admin
+                            <Button color="inherit" onClick={() => navigate('/generate')}>Generate Codes</Button>
+                        )}
+                        <Button color="inherit" onClick={handleSignOut}>Sign Out</Button>
+                    </div>
+                ) : (
+                    <div style={{ display: 'flex', alignItems: 'center' }}>
+                        <Typography variant="subtitle1" component="span" sx={{ marginLeft: '8px' }}>
+                            Student
+                        </Typography>
+                        <Button color="inherit" onClick={() => navigate('/login')}>Sign In / Create Account</Button>
+                    </div>
+                )}
+            </Toolbar>
         </AppBar>
     );
 };

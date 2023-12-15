@@ -123,7 +123,7 @@ const Logs: React.FC = () => {
             <Box display="flex" flexDirection="column" alignItems="center">
                 <Button variant="outlined" sx={{ margin:"20px" }} onClick={() => { navigate('/') }}>Back to Menu</Button>
             </Box>
-            <h1>Reports</h1>
+            <h1>Instructor Feedback</h1>
             {Object.entries(groupedFeedbacks).map(([topicId, topicFeedbacks]) => (
                 <div key={topicId}>
                     <h2>{idToSubtopic(topicId)}</h2>

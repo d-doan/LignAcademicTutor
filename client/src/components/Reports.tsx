@@ -118,7 +118,7 @@ const Reports: React.FC = () => {
                                 <Box p={2}>
                                     <Typography variant="h6">Question: {report.question_content}</Typography>
                                     <Typography>Answer: {report.answer}</Typography>
-                                    <Typography>Content: {report.content}</Typography>
+                                    <Typography>Student Comment: {report.content}</Typography>
                                     <Typography>Resolved: {report.is_resolved ? 'Yes' : 'No'}</Typography>
                                     {!report.is_resolved && (
                                         <Button
