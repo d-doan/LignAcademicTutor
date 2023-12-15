@@ -2,7 +2,7 @@ import json
 from flask import current_app, jsonify, request
 from openai import OpenAI
 
-from server.models.models import Question, Report
+from server.models.models import Report
 from server.extensions import db
 
 from . import gpt_blueprint
@@ -110,8 +110,20 @@ def submit_feedback():
 
 @gpt_blueprint.route('/feedback/<topic_id>', methods=['GET'])
 def get_feedback(topic_id):
-    feedback = retrieve_feedback(topic_id)
-    return jsonify(feedback)
+    feedback_objects = retrieve_feedback(topic_id)
+    feedback_list = []
+
+    for feedback in feedback_objects:
+        feedback_data = {
+            'id': feedback.id,
+            'topic_id': feedback.topic_id,
+            'feedback_messages': feedback.feedback_messages
+            # Add other fields as needed
+        }
+        feedback_list.append(feedback_data)
+
+    return jsonify(feedback_list)
+
 
 @gpt_blueprint.route('/feedback/edit/<feedback_id>', methods=['PUT'])
 def edit_feedback(feedback_id):
@@ -132,7 +144,7 @@ def submit_report():
     data = request.json
     new_report = Report(
         topic_id=data['topic_id'],
-        question_content=data['question_content'],  # Include the question content
+        question_content=data['question_content'],
         content=data['content']
     )
     db.session.add(new_report)
