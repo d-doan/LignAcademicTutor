@@ -2,7 +2,7 @@ import json
 from flask import current_app, jsonify, request
 from openai import OpenAI
 
-from server.models.models import Question, Report
+from server.models.models import Report
 from server.extensions import db
 
 from . import gpt_blueprint
@@ -110,8 +110,20 @@ def submit_feedback():
 
 @gpt_blueprint.route('/feedback/<topic_id>', methods=['GET'])
 def get_feedback(topic_id):
-    feedback = retrieve_feedback(topic_id)
-    return jsonify(feedback)
+    feedback_objects = retrieve_feedback(topic_id)
+    feedback_list = []
+
+    for feedback in feedback_objects:
+        feedback_data = {
+            'id': feedback.id,
+            'topic_id': feedback.topic_id,
+            'feedback_messages': feedback.feedback_messages
+            # Add other fields as needed
+        }
+        feedback_list.append(feedback_data)
+
+    return jsonify(feedback_list)
+
 
 @gpt_blueprint.route('/feedback/edit/<feedback_id>', methods=['PUT'])
 def edit_feedback(feedback_id):
@@ -131,7 +143,8 @@ def delete_feedback(feedback_id):
 def submit_report():
     data = request.json
     new_report = Report(
-        question_id=data['question_id'],
+        topic_id=data['topic_id'],
+        question_content=data['question_content'],
         content=data['content']
     )
     db.session.add(new_report)
@@ -140,12 +153,25 @@ def submit_report():
 
 @gpt_blueprint.route('/reports/<topic_id>', methods=['GET'])
 def get_reports(topic_id):
-    reports = Report.query.join(Question).filter(Question.topic_id == topic_id).all()
-    reports_data = [{'id': report.id, 'content': report.content, 'question_id': report.question_id} for report in reports]
+    reports = Report.query.filter(Report.topic_id == topic_id).all()
+    reports_data = [{'id': report.id, 'topic_id': report.topic_id, 'question_content': report.question_content, 'content': report.content, 'is_resolved': report.is_resolved} for report in reports]
     return jsonify(reports_data)
 
 @gpt_blueprint.route('/reports/unresolved/<topic_id>', methods=['GET'])
 def get_unresolved_reports(topic_id):
-    unresolved_reports = Report.query.join(Question).filter(Question.topic_id == topic_id, Report.is_resolved == False).all()
-    reports_data = [{'id': report.id, 'content': report.content, 'question_id': report.question_id} for report in unresolved_reports]
+    unresolved_reports = Report.query.filter(Report.topic_id == topic_id, Report.is_resolved == False).all()
+    reports_data = [{'id': report.id, 'topic_id': report.topic_id, 'question_content': report.question_content, 'content': report.content, 'is_resolved': report.is_resolved} for report in unresolved_reports]
     return jsonify(reports_data)
+
+@gpt_blueprint.route('/report/mark-resolved/<report_id>', methods=['PUT'])
+def mark_report_resolved(report_id):
+    # Find the report by ID
+    report = Report.query.get(report_id)
+    if not report:
+        return jsonify({"message": "Report not found"}), 404
+
+    # Update the is_resolved field to True
+    report.is_resolved = True
+    db.session.commit()
+
+    return jsonify({"message": "Report marked as resolved"}), 200
