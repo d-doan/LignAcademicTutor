@@ -249,11 +249,15 @@ const QuestionBank = () => {
         // Make a POST request to your Flask backend to report the question
         try {
             const response = await fetch('/gpt/report/submit', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({ question_id: currentQuestionIndex, content: reportText }), // Send the text as JSON
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ 
+                    topic_id: formattedSubtopic,
+                    question_content: questionList[currentQuestionIndex].questionText,
+                    content: reportText
+                }),
             });
             if (response.ok) {
               // Handle successful submission, show a success message

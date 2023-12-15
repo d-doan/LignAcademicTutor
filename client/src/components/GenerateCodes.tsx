@@ -64,13 +64,13 @@ const GenerateCodes: React.FC = () => {
     }, []);
 
     return (
-        <div>
+        <Box padding="16px">
             <Box display="flex" flexDirection="column" alignItems="center">
                 <Button variant="outlined" sx={{ margin:"20px" }} onClick={() => { navigate('/') }}>Back to Menu</Button>
                 <h1>Generate New Instructor Registration Code</h1>
             </Box>
             
-            <button onClick={generateCode}>Generate Code</button>
+            <Button variant="outlined" onClick={generateCode}>Generate Code</Button>
 
             <h2>Existing Codes</h2>
             <ul>
@@ -83,7 +83,7 @@ const GenerateCodes: React.FC = () => {
 
             {/* Navigation links */}
             {/* Include your navigation component here */}
-        </div>
+        </Box>
     );
 };
 
