@@ -1,13 +1,9 @@
 import uuid
-from flask import Blueprint, jsonify, render_template, redirect, request, url_for, flash
-from server.models.models import RegistrationCode, User, db
-from flask_login import current_user, login_user
+from flask import Blueprint, jsonify, redirect, request, url_for, flash
+from server.models.models import RegistrationCode, db
+from flask_login import current_user
 
 admin = Blueprint('admin', __name__)
-
-# Define admin routes below
-
-# admin commands
 
 @admin.route('/generate_code', methods=['GET', 'POST'])
 def generate_code():
