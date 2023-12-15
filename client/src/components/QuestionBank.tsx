@@ -256,6 +256,7 @@ const QuestionBank = () => {
                 body: JSON.stringify({ 
                     topic_id: formattedSubtopic,
                     question_content: questionList[currentQuestionIndex].questionText,
+                    answer: questionList[currentQuestionIndex].correctAnswer,
                     content: reportText
                 }),
             });

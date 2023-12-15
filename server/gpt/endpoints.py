@@ -55,7 +55,7 @@ def generate_syntax_trees():
             {"role": "system", "content": "We are going to work with syntax trees, this requires phase structure rules. Only break sentences down using these rules. The rules are as follows: 1.NP->DET N' 2.NP->N' 3.N'->N 4.N'->ADJ N' 5.NP->NP PP 6.PP->P NP 7.S->NP VP 8.VP->V 9.VP->V NP 10.VP->V PP 11.VP->VP PP 12.VP->V CP 13.CP->C S"},
             {"role": "user", "content": "These questions aims to focus on a student's understanding of syntax trees using the aforementioned phase structure rules. Can you generate 5 questions that achieve this?"}]
 
-    print(messages_to_send)
+    # print(messages_to_send)
 
     response = client.chat.completions.create(
         model="gpt-3.5-turbo-1106",
@@ -145,6 +145,7 @@ def submit_report():
     new_report = Report(
         topic_id=data['topic_id'],
         question_content=data['question_content'],
+        answer=data['answer'],
         content=data['content']
     )
     db.session.add(new_report)
@@ -154,13 +155,13 @@ def submit_report():
 @gpt_blueprint.route('/reports/<topic_id>', methods=['GET'])
 def get_reports(topic_id):
     reports = Report.query.filter(Report.topic_id == topic_id).all()
-    reports_data = [{'id': report.id, 'topic_id': report.topic_id, 'question_content': report.question_content, 'content': report.content, 'is_resolved': report.is_resolved} for report in reports]
+    reports_data = [{'id': report.id, 'topic_id': report.topic_id, 'question_content': report.question_content, 'answer': report.answer, 'content': report.content, 'is_resolved': report.is_resolved} for report in reports]
     return jsonify(reports_data)
 
 @gpt_blueprint.route('/reports/unresolved/<topic_id>', methods=['GET'])
 def get_unresolved_reports(topic_id):
     unresolved_reports = Report.query.filter(Report.topic_id == topic_id, Report.is_resolved == False).all()
-    reports_data = [{'id': report.id, 'topic_id': report.topic_id, 'question_content': report.question_content, 'content': report.content, 'is_resolved': report.is_resolved} for report in unresolved_reports]
+    reports_data = [{'id': report.id, 'topic_id': report.topic_id, 'question_content': report.question_content, 'answer': report.answer, 'content': report.content, 'is_resolved': report.is_resolved} for report in unresolved_reports]
     return jsonify(reports_data)
 
 @gpt_blueprint.route('/report/mark-resolved/<report_id>', methods=['PUT'])

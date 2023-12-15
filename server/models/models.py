@@ -47,5 +47,6 @@ class Report(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     topic_id = db.Column(db.String(100), db.ForeignKey('topic.id'), nullable=False)
     question_content = db.Column(db.Text, nullable=False)  # Store the question text directly
+    answer = db.Column(db.Text, nullable=False)  # Correct Answer
     content = db.Column(db.Text, nullable=False)  # The content of the report
     is_resolved = db.Column(db.Boolean, default=False)  # To track if the report has been addressed
