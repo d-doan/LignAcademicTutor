@@ -143,7 +143,10 @@ const QuestionBank = () => {
             headers: {
               'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ topic_id: formattedSubtopic, feedback_text: feedbackText }), // Send the text as JSON
+            body: JSON.stringify({
+                topic_id: formattedSubtopic,
+                feedback_text: feedbackText
+            }),
           });
           if (response.ok) {
             // Handle successful submission, show a success message
