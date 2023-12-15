@@ -23,13 +23,13 @@ class User(db.Model, UserMixin):
         return self.role == 'admin'
 
 class Topic(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.String, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     description = db.Column(db.Text, nullable=True)
 
 class Question(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    topic_id = db.Column(db.Integer, db.ForeignKey('topic.id'), nullable=False)
+    topic_id = db.Column(db.String(100), db.ForeignKey('topic.id'), nullable=False)
     content = db.Column(db.Text, nullable=False)  # e.g., "Identify the correct syntax tree"
     custom_prompt = db.Column(db.Text, nullable=True)  # Additional prompting
 
@@ -40,11 +40,12 @@ class RegistrationCode(db.Model):
 
 class Feedback(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    topic_id = db.Column(db.Integer, db.ForeignKey('topic.id'), nullable=False)
+    topic_id = db.Column(db.String(100), db.ForeignKey('topic.id'), nullable=False)
     feedback_messages = db.Column(db.JSON, nullable=False)
 
 class Report(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    question_id = db.Column(db.Integer, db.ForeignKey('question.id'), nullable=False)
+    topic_id = db.Column(db.String(100), db.ForeignKey('topic.id'), nullable=False)
+    question_content = db.Column(db.Text, nullable=False)  # Store the question text directly
     content = db.Column(db.Text, nullable=False)  # The content of the report
     is_resolved = db.Column(db.Boolean, default=False)  # To track if the report has been addressed
