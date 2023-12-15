@@ -142,6 +142,7 @@ def submit_report():
     new_report = Report(
         topic_id=data['topic_id'],
         question_content=data['question_content'],
+        answer=data['answer'],
         content=data['content']
     )
     db.session.add(new_report)
@@ -151,13 +152,13 @@ def submit_report():
 @gpt_blueprint.route('/reports/<topic_id>', methods=['GET'])
 def get_reports(topic_id):
     reports = Report.query.filter(Report.topic_id == topic_id).all()
-    reports_data = [{'id': report.id, 'topic_id': report.topic_id, 'question_content': report.question_content, 'content': report.content, 'is_resolved': report.is_resolved} for report in reports]
+    reports_data = [{'id': report.id, 'topic_id': report.topic_id, 'question_content': report.question_content, 'answer': report.answer, 'content': report.content, 'is_resolved': report.is_resolved} for report in reports]
     return jsonify(reports_data)
 
 @gpt_blueprint.route('/reports/unresolved/<topic_id>', methods=['GET'])
 def get_unresolved_reports(topic_id):
     unresolved_reports = Report.query.filter(Report.topic_id == topic_id, Report.is_resolved == False).all()
-    reports_data = [{'id': report.id, 'topic_id': report.topic_id, 'question_content': report.question_content, 'content': report.content, 'is_resolved': report.is_resolved} for report in unresolved_reports]
+    reports_data = [{'id': report.id, 'topic_id': report.topic_id, 'question_content': report.question_content, 'answer': report.answer, 'content': report.content, 'is_resolved': report.is_resolved} for report in unresolved_reports]
     return jsonify(reports_data)
 
 @gpt_blueprint.route('/report/mark-resolved/<report_id>', methods=['PUT'])

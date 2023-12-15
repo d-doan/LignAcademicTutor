@@ -8,6 +8,7 @@ import CreateAccountPage from './components/CreateAccountPage';
 import QuestionBank from './components/QuestionBank';
 import GenerateCodes from './components/GenerateCodes';
 import Logs from './components/Logs';
+import Reports from './components/Reports';
 
 interface User {
     username: string;
@@ -67,6 +68,7 @@ function App() {
             <Route path="/create-account" element={<CreateAccountPage />} />
             <Route path="/generate" element={<GenerateCodes />} />
             <Route path="/logs" element={<Logs />} />
+            <Route path="/reports" element={<Reports />} />
             {/* Other routes */}
         </Routes>
         </Router>

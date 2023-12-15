@@ -28,10 +28,20 @@ const QuestionBank = () => {
     const topic = params.topic ?? 'default';
     const subtopic = params.subtopic ?? 'default';
 
+// parse subtopic
+    const subtopicMappings: { [key: string]: string } = {
+        'Transcription': 'transcription',
+        'Phonological Rules': 'phonrules',
+        'Syntax Trees': 'trees',
+        'Entailment vs. Implicature': 'entailment',
+        'Maxims': 'maxims',
+    };
+    const formattedSubtopic = subtopicMappings[subtopic] || subtopic.toLowerCase();
+
 // generated questions
-const [questionList, setQuestionList] = useState<Question[]>([]);
-const [dataLoaded, setDataLoaded] = useState(false);
-const [hasEffectRun, setHasEffectRun] = useState(false);
+    const [questionList, setQuestionList] = useState<Question[]>([]);
+    const [dataLoaded, setDataLoaded] = useState(false);
+    const [hasEffectRun, setHasEffectRun] = useState(false);
 
 // question submission
     const [selectedOption, setSelectedOption] = useState("");
@@ -128,12 +138,12 @@ const [hasEffectRun, setHasEffectRun] = useState(false);
     const handleFeedbackSubmit = async () => {
         // Make a POST request to your Flask backend to submit the text
         try {
-          const response = await fetch('/auth/feedback', {
+          const response = await fetch('/gpt/feedback/submit', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ subtopic, feedbackText }), // Send the text as JSON
+            body: JSON.stringify({ topic_id: formattedSubtopic, feedback_text: feedbackText }), // Send the text as JSON
           });
           if (response.ok) {
             // Handle successful submission, show a success message
@@ -232,11 +242,35 @@ const [hasEffectRun, setHasEffectRun] = useState(false);
         setIsPopupOpen(true);
     };
 
-    const handleReportSubmit = () => {
+    const handleReportSubmit = async () => {
         // Handle the report submission here
         console.log('Report:', reportText);
       
-        // You can send the report data to your server or perform any other necessary actions
+        // Make a POST request to your Flask backend to report the question
+        try {
+            const response = await fetch('/gpt/report/submit', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ 
+                    topic_id: formattedSubtopic,
+                    question_content: questionList[currentQuestionIndex].questionText,
+                    answer: questionList[currentQuestionIndex].correctAnswer,
+                    content: reportText
+                }),
+            });
+            if (response.ok) {
+              // Handle successful submission, show a success message
+              window.alert('Feedback submitted successfully.');
+            } else {
+              // Handle submission error, show an error message
+              window.alert('Error submitting feedback: ' + response.statusText);
+            }
+          } catch (error: any) {
+            // Handle network or other errors, show an error message
+            window.alert('Error submitting feedback: ' + error.message);
+          }
       
         // Close the modal after submission
         setIsPopupOpen(false);
@@ -258,14 +292,6 @@ const [hasEffectRun, setHasEffectRun] = useState(false);
     const fetchAndAddQuestions = async () => {
         // Check if the question list is empty or if the user is at the last question
         if (questionList.length === 0) { // || currentQuestionIndex === questionList.length - 1 when we get persistence across page refresh working
-            const subtopicMappings: { [key: string]: string } = {
-                'Transcription': 'transcription',
-                'Phonological Rules': 'phonrules',
-                'Syntax Trees': 'trees',
-                'Entailment vs. Implicature': 'entailment',
-                'Maxims': 'maxims',
-            };
-            const formattedSubtopic = subtopicMappings[subtopic] || subtopic.toLowerCase();
             try {
                 const response = await fetch(`/gpt/${topic}/${formattedSubtopic}`, {
                     method: 'GET',
