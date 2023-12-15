@@ -55,8 +55,6 @@ def generate_syntax_trees():
             {"role": "system", "content": "We are going to work with syntax trees, this requires phase structure rules. Only break sentences down using these rules. The rules are as follows: 1.NP->DET N' 2.NP->N' 3.N'->N 4.N'->ADJ N' 5.NP->NP PP 6.PP->P NP 7.S->NP VP 8.VP->V 9.VP->V NP 10.VP->V PP 11.VP->VP PP 12.VP->V CP 13.CP->C S"},
             {"role": "user", "content": "These questions aims to focus on a student's understanding of syntax trees using the aforementioned phase structure rules. Can you generate 5 questions that achieve this?"}]
 
-    print(messages_to_send)
-
     response = client.chat.completions.create(
         model="gpt-3.5-turbo-1106",
         response_format={"type":"json_object"},
@@ -118,7 +116,6 @@ def get_feedback(topic_id):
             'id': feedback.id,
             'topic_id': feedback.topic_id,
             'feedback_messages': feedback.feedback_messages
-            # Add other fields as needed
         }
         feedback_list.append(feedback_data)
 
