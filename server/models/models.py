@@ -31,7 +31,7 @@ class Question(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     topic_id = db.Column(db.String(100), db.ForeignKey('topic.id'), nullable=False)
     content = db.Column(db.Text, nullable=False)  # e.g., "Identify the correct syntax tree"
-    custom_prompt = db.Column(db.Text, nullable=True)  # Additional prompting
+    custom_prompt = db.Column(db.Text, nullable=True)
 
 class RegistrationCode(db.Model):
     id = db.Column(db.Integer, primary_key=True)
